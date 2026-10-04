@@ -34,16 +34,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const card_config = {
 		title: "Majlis Perkahwinan Putra & Laila",
-		venue: "Asiana Grand Hall, Petaling Jaya, Selangor",
+		venue: "Asiana Grand Hall Petaling Jaya, Petaling Jaya, Selangor",
 		date: "2026-10-31",
 		start: "2026-10-31T11:00:00+08:00",
-		end: "2026-10-31T16:00:00+08:00",
-		latitude: 4.425253626329878,
-		longitude: 103.44727812355482,
+		end: "2026-10-31T15:30:00+08:00",
+		latitude: 3.101402420208492,
+		longitude: 101.64211506430325,
 		contacts: {
-			fatihah: "60129663649",
-			munirah: "60139964399",
-			kharnie: "60129685617",
+			juliana: "60122124687",
+			shah: "60129719772",
+			amin: "60133454658",
+			iffa: "60122124662",
 		},
 	};
 
@@ -54,7 +55,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	/*-- Cover | Sleeve --*/
 
-	function scaleCoverSleeves() {
+	/*
+|--------------------------------------------------------------------------
+| Cover Sleeve Configuration
+|--------------------------------------------------------------------------
+|
+| The sleeve size is calculated ONCE when the invitation loads.
+|
+| This is intentional.
+|
+| Mobile browser address bars can change the visual viewport height while
+| scrolling. We do NOT want that to resize the cover.
+|
+|--------------------------------------------------------------------------
+*/
+
+	let cover_scale = 1;
+	let cover_design_width = 0;
+	let cover_design_height = 0;
+
+	/*
+|--------------------------------------------------------------------------
+| Initialise Cover Sleeves
+|--------------------------------------------------------------------------
+*/
+
+	function initialiseCoverSleeves() {
 		if (!cover_sleeves) {
 			return;
 		}
@@ -65,50 +91,120 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		let designWidth = 0;
-		let designHeight = 0;
+		let initialised = false;
 
-		sleeves.forEach((sleeve) => {
-			let mediaWidth;
-			let mediaHeight;
-
-			if (sleeve.tagName === "VIDEO") {
-				mediaWidth = sleeve.videoWidth;
-				mediaHeight = sleeve.videoHeight;
-			} else {
-				mediaWidth = sleeve.naturalWidth;
-				mediaHeight = sleeve.naturalHeight;
-			}
-
-			if (!mediaWidth || !mediaHeight) {
+		function calculateCover() {
+			if (initialised) {
 				return;
 			}
 
-			designWidth += mediaWidth;
-			designHeight = Math.max(designHeight, mediaHeight);
+			cover_design_width = 0;
+			cover_design_height = 0;
+
+			sleeves.forEach((sleeve) => {
+				let media_width = 0;
+				let media_height = 0;
+
+				if (sleeve.tagName === "VIDEO") {
+					media_width = sleeve.videoWidth;
+					media_height = sleeve.videoHeight;
+				} else {
+					media_width = sleeve.naturalWidth;
+					media_height = sleeve.naturalHeight;
+				}
+
+				if (!media_width || !media_height) {
+					return;
+				}
+
+				cover_design_width += media_width;
+
+				cover_design_height = Math.max(cover_design_height, media_height);
+			});
+
+			if (!cover_design_width || !cover_design_height) {
+				return;
+			}
+
+			/*
+		|--------------------------------------------------------------------------
+		| Initial viewport
+		|--------------------------------------------------------------------------
+		*/
+
+			const viewport_width = document.documentElement.clientWidth;
+
+			const viewport_height = window.innerHeight;
+
+			/*
+		|--------------------------------------------------------------------------
+		| Cover calculation
+		|--------------------------------------------------------------------------
+		*/
+
+			const scale_by_width = viewport_width / cover_design_width;
+
+			const scale_by_height = viewport_height / cover_design_height;
+
+			cover_scale = Math.max(scale_by_width, scale_by_height);
+
+			/*
+		|--------------------------------------------------------------------------
+		| Apply
+		|--------------------------------------------------------------------------
+		*/
+
+			cover_sleeves.style.setProperty("--cover-scale", cover_scale);
+
+			cover_sleeves.style.transform = `translate(-50%, -50%) scale(${cover_scale})`;
+
+			initialised = true;
+		}
+
+		/*
+	|--------------------------------------------------------------------------
+	| Check media readiness
+	|--------------------------------------------------------------------------
+	*/
+
+		let media_ready = true;
+
+		sleeves.forEach((sleeve) => {
+			if (sleeve.tagName === "VIDEO") {
+				if (!sleeve.videoWidth || !sleeve.videoHeight) {
+					media_ready = false;
+
+					sleeve.addEventListener("loadedmetadata", calculateCover, {
+						once: true,
+					});
+				}
+			} else {
+				if (!sleeve.complete || !sleeve.naturalWidth || !sleeve.naturalHeight) {
+					media_ready = false;
+
+					sleeve.addEventListener("load", calculateCover, { once: true });
+				}
+			}
 		});
 
-		if (!designWidth || !designHeight) {
-			return;
+		/*
+	|--------------------------------------------------------------------------
+	| Calculate immediately if everything is ready
+	|--------------------------------------------------------------------------
+	*/
+
+		if (media_ready) {
+			calculateCover();
 		}
-
-		const viewportWidth = window.innerWidth;
-		const viewportHeight = window.innerHeight;
-
-		let scale;
-
-		if (viewportWidth <= 768) {
-			scale = viewportHeight / designHeight;
-		} else {
-			scale = viewportWidth / designWidth;
-		}
-
-		cover_sleeves.style.transform = `translate(-50%, -50%) scale(${scale})`;
-		cover_sleeves.style.setProperty("--landing-scale", scale);
 	}
 
-	scaleCoverSleeves();
-	window.addEventListener("resize", scaleCoverSleeves);
+	/*
+|--------------------------------------------------------------------------
+| Initialise Once
+|--------------------------------------------------------------------------
+*/
+
+	initialiseCoverSleeves();
 
 	/*-- Cover | Hint --*/
 
@@ -150,53 +246,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	cover.addEventListener("click", openInvitation);
 
-	/*-- Card --*/
+	/*-- Card | Dimensions --*/
 
-	function resizeWeddingCard() {
-		if (!wedding_card || !section_main_card) {
-			return;
+	function getWeddingCardMediaDimensions() {
+		if (!section_main_card) {
+			return null;
 		}
 
-		const viewportWidth = window.innerWidth;
-		const viewportHeight = window.innerHeight;
-
-		let mediaWidth;
-		let mediaHeight;
+		let width = 0;
+		let height = 0;
 
 		if (section_main_card.tagName === "VIDEO") {
-			mediaWidth = section_main_card.videoWidth;
-			mediaHeight = section_main_card.videoHeight;
+			width = section_main_card.videoWidth;
+			height = section_main_card.videoHeight;
 		} else {
-			mediaWidth = section_main_card.naturalWidth;
-			mediaHeight = section_main_card.naturalHeight;
+			width = section_main_card.naturalWidth;
+			height = section_main_card.naturalHeight;
 		}
 
-		if (!mediaWidth || !mediaHeight) {
+		if (!width || !height) {
+			return null;
+		}
+
+		return {
+			width,
+			height,
+		};
+	}
+
+	/*-- Card | Width --*/
+
+	function initialiseWeddingCard() {
+		if (!wedding_card) {
 			return;
 		}
 
-		const mediaRatio = mediaWidth / mediaHeight;
+		const viewportWidth = document.documentElement.clientWidth;
+
+		/*
+	|--------------------------------------------------------------------------
+	| Mobile
+	|--------------------------------------------------------------------------
+	|
+	| The wedding card follows the viewport width.
+	|
+	*/
 
 		if (viewportWidth <= 768) {
 			wedding_card.style.width = `${viewportWidth}px`;
-		} else {
-			const cardWidth = viewportHeight * mediaRatio;
 
-			wedding_card.style.width = `${cardWidth}px`;
+			return;
 		}
+
+		/*
+	|--------------------------------------------------------------------------
+	| Desktop
+	|--------------------------------------------------------------------------
+	*/
+
+		const media = getWeddingCardMediaDimensions();
+
+		if (!media) {
+			return;
+		}
+
+		const viewportHeight = window.innerHeight;
+
+		const mediaRatio = media.width / media.height;
+
+		const cardWidth = viewportHeight * mediaRatio;
+
+		wedding_card.style.width = `${cardWidth}px`;
 	}
 
-	if (section_main_card) {
-		if (section_main_card.complete) {
-			resizeWeddingCard();
-		} else {
-			section_main_card.addEventListener("load", resizeWeddingCard());
-		}
-	}
-
-	window.addEventListener("resize", resizeWeddingCard());
-
-	/*-- Card | Navbar --*/
+	/*-- Card | Floating UI --*/
 
 	function syncFloatingUIWidth() {
 		if (!wedding_card) {
@@ -205,77 +328,209 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const cardWidth = wedding_card.getBoundingClientRect().width;
 
+		if (!cardWidth) {
+			return;
+		}
+
 		document.documentElement.style.setProperty(
 			"--wedding-card-width",
 			`${cardWidth}px`
 		);
 	}
 
-	syncFloatingUIWidth();
+	/*-- Card | Initialise --*/
 
-	window.addEventListener("resize", syncFloatingUIWidth);
+	function initialiseCardDimensions() {
+		initialiseWeddingCard();
+
+		syncFloatingUIWidth();
+	}
+
+	initialiseCardDimensions();
+
+	/*
+|--------------------------------------------------------------------------
+| Wait For Main Card Media
+|--------------------------------------------------------------------------
+*/
+
+	if (section_main_card) {
+		if (section_main_card.tagName === "VIDEO") {
+			section_main_card.addEventListener(
+				"loadedmetadata",
+				initialiseCardDimensions,
+				{ once: true }
+			);
+		} else if (!section_main_card.complete) {
+			section_main_card.addEventListener("load", initialiseCardDimensions, {
+				once: true,
+			});
+		}
+	}
+
+	/*
+|--------------------------------------------------------------------------
+| Resize
+|--------------------------------------------------------------------------
+|
+| We recalculate the card width and floating UI position when the
+| viewport changes.
+|
+*/
+
+	window.addEventListener("resize", () => {
+		initialiseCardDimensions();
+	});
 
 	/*-- Card | Background --*/
 
+	/*
+|--------------------------------------------------------------------------
+| Background Video Configuration
+|--------------------------------------------------------------------------
+*/
+
 	const BACKGROUND_TILE_OVERLAP = 2;
+
+	/*
+|--------------------------------------------------------------------------
+| Create Background Video Tile
+|--------------------------------------------------------------------------
+*/
 
 	function createBackgroundVideoTile(top, height) {
 		const tile = document.createElement("div");
 
 		tile.className = "card-background-tile";
+
 		tile.style.top = `${top}px`;
+
 		tile.style.height = `${height + BACKGROUND_TILE_OVERLAP}px`;
 
 		const video = document.createElement("video");
 
 		video.src = card_background_src;
+
 		video.autoplay = true;
+
 		video.loop = true;
+
 		video.muted = true;
+
 		video.playsInline = true;
+
 		video.preload = "auto";
 
 		video.setAttribute("aria-hidden", "true");
+
 		tile.appendChild(video);
 
 		card_background.appendChild(tile);
 
 		video.play().catch(() => {
-			// Browser may delay autoplay until interaction.
+			/*
+        | Browser may delay autoplay until interaction.
+        */
 		});
 
 		return tile;
 	}
 
-	/*-- Card | Background | Tiles --*/
+	/*
+|--------------------------------------------------------------------------
+| Create Background Video Tiles
+|--------------------------------------------------------------------------
+*/
 
 	function createBackgroundVideoTiles() {
-		if (!card_content || !card_background) {
+		if (!card_content || !card_background || !card_background_src) {
 			return;
 		}
 
+		/*
+    |--------------------------------------------------------------------------
+    | Clear Existing Tiles
+    |--------------------------------------------------------------------------
+    */
+
 		card_background.innerHTML = "";
 
-		const tileHeight = window.innerHeight;
-		const cardHeight = card_content.scrollHeight;
-		const tileCount = Math.ceil(cardHeight / tileHeight);
+		/*
+    |--------------------------------------------------------------------------
+    | Determine Video Dimensions
+    |--------------------------------------------------------------------------
+    */
 
-		for (let index = 0; index < tileCount; index++) {
-			createBackgroundVideoTile(index * tileHeight, tileHeight);
-		}
+		const sourceVideo = document.createElement("video");
+
+		sourceVideo.src = card_background_src;
+
+		sourceVideo.preload = "metadata";
+
+		sourceVideo.muted = true;
+
+		sourceVideo.playsInline = true;
+
+		sourceVideo.addEventListener("loadedmetadata", () => {
+			const videoWidth = sourceVideo.videoWidth;
+
+			const videoHeight = sourceVideo.videoHeight;
+
+			if (!videoWidth || !videoHeight) {
+				return;
+			}
+
+			/*
+            |--------------------------------------------------------------------------
+            | Card Dimensions
+            |--------------------------------------------------------------------------
+            */
+
+			const cardWidth = card_content.clientWidth;
+
+			const cardHeight = card_content.scrollHeight;
+
+			/*
+            |--------------------------------------------------------------------------
+            | Calculate Tile Height
+            |--------------------------------------------------------------------------
+            |
+            | Scale the video proportionally so that its width matches
+            | the card width.
+            |
+            */
+
+			const scale = cardWidth / videoWidth;
+
+			const tileHeight = videoHeight * scale;
+
+			/*
+            |--------------------------------------------------------------------------
+            | Calculate Tile Count
+            |--------------------------------------------------------------------------
+            */
+
+			const tileCount = Math.ceil(cardHeight / tileHeight);
+
+			/*
+            |--------------------------------------------------------------------------
+            | Create Tiles
+            |--------------------------------------------------------------------------
+            */
+
+			for (let index = 0; index < tileCount; index++) {
+				createBackgroundVideoTile(index * tileHeight, tileHeight);
+			}
+		});
 	}
 
+	/*
+|--------------------------------------------------------------------------
+| Initialise Background
+|--------------------------------------------------------------------------
+*/
+
 	createBackgroundVideoTiles();
-
-	let backgroundResizeTimer;
-
-	window.addEventListener("resize", () => {
-		clearTimeout(backgroundResizeTimer);
-
-		backgroundResizeTimer = setTimeout(() => {
-			createBackgroundVideoTiles();
-		}, 150);
-	});
 
 	/*-- Card | Background | Music --*/
 
@@ -571,7 +826,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
 
                         <strong>
-                            11:00 Pagi – 4:00 Petang
+                            11:00 Pagi – 3:30 Petang
                         </strong>
 
                         <span>
@@ -659,7 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
 
                         <strong>
-                            012-971 9772
+                            013-971 9772
                         </strong>
 
                         <span>
@@ -1361,9 +1616,7 @@ document.addEventListener('DOMContentLoaded', () => {
             |--------------------------------------------------------------------------
             */
 
-			if (typeof lucide !== "undefined") {
-				lucide.createIcons();
-			}
+			createIcons({ icons });
 		});
 
 		/*
@@ -1498,9 +1751,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     `;
 
-					if (typeof lucide !== "undefined") {
-						lucide.createIcons();
-					}
+					createIcons({ icons });
 				}
 			}
 		});
@@ -1583,9 +1834,7 @@ document.addEventListener('DOMContentLoaded', () => {
     |--------------------------------------------------------------------------
     */
 
-		if (typeof lucide !== "undefined") {
-			lucide.createIcons();
-		}
+		createIcons({ icons });
 
 		/*
     |--------------------------------------------------------------------------
@@ -1913,9 +2162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     |----------------------------------------------------------------
                     */
 
-					if (typeof lucide !== "undefined") {
-						lucide.createIcons();
-					}
+					createIcons({ icons });
 				}
 			}
 		});
@@ -1998,9 +2245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     |--------------------------------------------------------------------------
     */
 
-		if (typeof lucide !== "undefined") {
-			lucide.createIcons();
-		}
+		createIcons({ icons });
 
 		/*
     |--------------------------------------------------------------------------
@@ -2122,7 +2367,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const title = encodeURIComponent("Majlis Perkahwinan Putra & Laila");
 		const details = encodeURIComponent("Majlis Perkahwinan Putra & Laila");
 		const location = encodeURIComponent(
-			"Asiana Grand Hall PJ, Petaling Jaya, Selangor"
+			"Asiana Grand Hall Petaling Jaya, Petaling Jaya, Selangor"
 		);
 		const start = "20261031T030000Z";
 		const end = "20261031T080000Z";
@@ -2146,7 +2391,7 @@ document.addEventListener('DOMContentLoaded', () => {
             DTSTART:20261031T030000Z
             DTEND:20261031T080000Z
             SUMMARY:Majlis Perkahwinan Putra & Laila
-            LOCATION:Asiana Grand Hall PJ\\, Petaling Jaya\\, Selangor
+            LOCATION:Asiana Grand Hall Petaling Jaya\\, Petaling Jaya\\, Selangor
             DESCRIPTION:Majlis Perkahwinan Putra & Laila
             END:VEVENT
             END:VCALENDAR`;
@@ -2205,7 +2450,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function openGoogleMaps() {
 		const destination = encodeURIComponent(
-			"Asiana Grand Hall PJ, Petaling Jaya, Selangor"
+			"Asiana Grand Hall Petaling Jaya, Petaling Jaya, Selangor"
 		);
 
 		window.open(
@@ -2215,12 +2460,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function openWaze() {
-		const latitude = "3.100196885850618";
-		const longitude = "101.64292872148212";
-
-		const destination = encodeURIComponent(
-			"Asiana Grand Hall PJ, Petaling Jaya, Selangor"
-		);
+		const latitude = "5.123456";
+		const longitude = "102.123456";
 
 		window.open(
 			`https://www.waze.com/ul?ll=${latitude}%2C${longitude}&navigate=yes`,

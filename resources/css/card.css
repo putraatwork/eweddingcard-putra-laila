@@ -56,21 +56,21 @@
     --font: 'Montserrat', Arial, sans-serif;
     --font-cursive: 'Alex Brush', cursive;
 
-    --primary-color: #cda85e;
+    --primary-color: #630404;
 
     --bg-primary-color: #cda85e;
     --bg-secondary-color: #F8FAF9;
     --bg-tertiary-color: #4f4034;
 
     --bg-primary-transparent: rgba(205, 168, 94, 0.6);
-    --bg-primary-transparent-text: #630404;
+    --bg-primary-transparent-text: #fff;
 
     --text-primary-color: #edd4c4;
     --text-secondary-color: #848484;
     --text-tertiary-color: #4f4034;
 
     --btn-bg-primary: #cda85e;
-    --btn-bg-primary-text: #630404;
+    --btn-bg-primary-text: #fff;
 }
 
 /*-- Html --*/
@@ -127,30 +127,91 @@ body:not(.invitation-opened) {
     @apply overflow-hidden;
 }
 
-/* -- Cover -- */
+/* ==========================================================================
+   Cover
+   ========================================================================== */
 
-.cover {
+   .cover {
     @apply fixed inset-0 w-full flex items-center justify-center overflow-hidden;
 
     height: 100svh;
+
     z-index: 3000;
+
     cursor: pointer;
 }
 
-/* -- Cover | Sleeves -- */
+
+/* ==========================================================================
+   Cover | Sleeves
+   ========================================================================== */
 
 .cover-sleeves {
     @apply absolute top-1/2 left-1/2 flex overflow-visible z-10;
 
-    transform: translate(-50%, -50%) scale(1);
+    /*
+    |--------------------------------------------------------------------------
+    | Important
+    |--------------------------------------------------------------------------
+    |
+    | The actual scale is calculated once by JavaScript.
+    |
+    */
+
+    --cover-scale: 1;
+
+    transform:
+        translate(-50%, -50%)
+        scale(var(--cover-scale));
+
     transform-origin: center center;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prevent the browser from trying to resize/reflow the sleeve
+    |--------------------------------------------------------------------------
+    */
+
+    width: max-content;
+    height: max-content;
 }
+
+
+/* ==========================================================================
+   Cover | Sleeve
+   ========================================================================== */
 
 .sleeve {
     @apply shrink-0;
 
-    flex-basis: 50vw;
-    transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
+    /*
+    |--------------------------------------------------------------------------
+    | Use Natural Image Width
+    |--------------------------------------------------------------------------
+    |
+    | Do NOT use 50vw here.
+    |
+    | The sleeve should remain in its original design coordinate system.
+    |
+    */
+
+    width: auto;
+    height: auto;
+
+    flex: 0 0 auto;
+
+    display: block;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Opening Animation
+    |--------------------------------------------------------------------------
+    */
+
+    transition:
+        transform
+        1.4s
+        cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 /* -- Cover | Content -- */
@@ -215,27 +276,31 @@ body:not(.invitation-opened) {
     }
 }
 
-/* -- Cover | Opening -- */
+/* ==========================================================================
+   Cover | Opening
+   ========================================================================== */
 
-.cover.opened .sleeve-left {
+   .cover.opened .sleeve-left {
     transform:
         translateX(
             calc(
                 -100% -
-                (50vw / var(--landing-scale))
+                (50vw / var(--cover-scale))
             )
         );
 }
+
 
 .cover.opened .sleeve-right {
     transform:
         translateX(
             calc(
                 100% +
-                (50vw / var(--landing-scale))
+                (50vw / var(--cover-scale))
             )
         );
 }
+
 
 .cover.opened .cover-hint {
     @apply opacity-0;
@@ -287,23 +352,25 @@ body.invitation-opened .wedding-card {
 
 /* -- Card | Background -- */
 
+/* -- Card | Background -- */
+
 .card-background {
     @apply absolute inset-0 z-0 h-full w-full overflow-hidden;
 
     pointer-events: none;
 }
 
+
 .card-background-tile {
     @apply absolute left-0 w-full overflow-hidden;
 
     transform: translateZ(0);
     backface-visibility: hidden;
-    will-change: transform;
 }
 
-.card-background-tile video,
-.card-background-tile img {
-    @apply block h-full w-full m-0 p-0 object-cover;
+
+.card-background-tile video {
+    @apply block w-full h-full m-0 p-0 object-cover;
 
     transform: translateZ(0);
     backface-visibility: hidden;
@@ -371,8 +438,8 @@ body.invitation-opened .wedding-card {
         flex flex-col items-center justify-center gap-5
         text-center text-sm;
 
-    background: var(--btn-bg-primary);
-    color: var(--btn-bg-primary-text);
+    background: var(--bg-primary-transparent);
+    color: var(--bg-primary-transparent-text);
     box-shadow:
         0 10px 20px
         rgba(0, 0, 0, 0.5);
@@ -572,7 +639,7 @@ body.invitation-opened .wedding-card {
 /* -- Card | Section | Gallery | Photo Stack -- */
 
 .photo-stack {
-    @apply relative w-[80%] aspect-[3/4] cursor-pointer;
+    @apply relative w-[80%] aspect-[3/4] cursor-pointer ;
 }
 
 
@@ -599,6 +666,10 @@ body.invitation-opened .wedding-card {
     will-change: transform;
     
     user-select: none;
+}
+
+.photo-card img {
+    @apply rounded-[5px];
 }
 
 
@@ -676,7 +747,7 @@ body.invitation-opened .wedding-card {
 .navbar {
     @apply fixed left-1/2 bottom-5 z-[1000]
         flex items-stretch
-        max-w-[100vw]
+        max-w-[calc(100vw-30px)]
         p-[5px]
         border border-solid rounded-[20px]
         text-xs
@@ -685,14 +756,22 @@ body.invitation-opened .wedding-card {
         transition-[opacity,transform,visibility]
         duration-[350ms] ease-in-out;
 
-    width: calc(var(--wedding-card-width) - 30px);
+    width: min(
+        calc(var(--wedding-card-width, 100vw) - 30px),
+        calc(100vw - 30px)
+    );
+
     border-color: rgba(90, 70, 50, 0.10);
+
     box-shadow:
         0 10px 35px rgba(0, 0, 0, 0.12),
         0 2px 8px rgba(0, 0, 0, 0.05);
+
     -webkit-backdrop-filter: blur(20px);
+
     background: var(--bg-primary-transparent);
     color: var(--bg-primary-transparent-text);
+
     transform: translateX(-50%) translateY(0);
 }
 
@@ -745,7 +824,7 @@ body.invitation-opened .navbar {
         w-[42px] h-[42px]
         flex items-center justify-center
         p-0
-        border border-solid rounded-full
+        rounded-full
         cursor-pointer
         backdrop-blur-[20px]
         transition-[opacity,transform,background]
@@ -759,7 +838,6 @@ body.invitation-opened .navbar {
         18px
     );
 
-    border-color: rgba(90, 70, 50, 0.10);
     background: var(--bg-primary-transparent);
     color: var(--bg-primary-transparent-text);
 
@@ -886,7 +964,7 @@ body.invitation-opened #music-toggle {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    color: var(--btn-bg-primary-text);
+    color: var(--primary-color);
 }
 
 .modal-header {
@@ -921,7 +999,6 @@ body.invitation-opened #music-toggle {
 .modal-info {
     width: 100%;
     padding: 28px 35px;
-    border: 1px solid var(--primary-color);
     border-radius: 10px;
     background: var(--bg-primary-transparent);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);

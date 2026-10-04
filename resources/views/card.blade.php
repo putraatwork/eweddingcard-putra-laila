@@ -142,7 +142,8 @@
 
                             <div class="detail-text">
                                 <p class="detail-main">
-                                    Asiana Grand Hall, Petaling Jaya
+                                    Asiana Grand Hall PJ
+                                    <br>Petaling Jaya, Terengganu
                                 </p>
                             </div>
                         </div>
@@ -269,7 +270,7 @@
                                     </div>
 
                                     <div class="timeline-event">
-                                        Majlis Bersanding
+                                        Ketibaan Pengantin
                                     </div>
                                 </div>
                             </div>
@@ -382,11 +383,16 @@
                                 </div>
                             </div>
                         </div>
-
+                        <!--
                         <button type="button" class="section-button" data-modal="live">
                             Tonton Live
                         </button>
-                        
+                        -->
+                    </div>
+                </section>
+
+                <section class="wedding-card-section">
+                    <div class="section-content">
                         <p>
                             Terima kasih diatas kehadiran Tuan/Puan yang telah menyerikan majlis perkahwinan ini, 
                             semoga kita semua diberkati Allah SWT.
@@ -425,9 +431,9 @@
             <small>RSVP</small>
         </button>
     
-        <button type="button" data-modal="salam-kaut">
-            <i data-lucide="heart-handshake"></i>
-            <small>Salam Kaut</small>
+        <button type="button" data-modal="guestbook">
+            <i data-lucide="message-square-heart"></i>
+            <small>Ucapan</small>
         </button>
     </nav>
 

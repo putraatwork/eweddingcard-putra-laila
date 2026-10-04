@@ -5,7 +5,7 @@ use App\Http\Controllers\RsvpController;
 use App\Http\Controllers\WeddingCardController;
 use Illuminate\Support\Facades\Route;
 
-$slug = 'laila-putra';
+$slug = 'putra-laila';
 
 Route::get('/', function () {
     // return view('welcome');

@@ -1,608 +1,540 @@
 import {createIcons, icons, VolumeX, Volume2} from 'lucide';
 
 document.addEventListener('DOMContentLoaded', () => {
+	/*-- Element | Cover --*/
+
+	const cover = document.querySelector(".cover");
+	const cover_sleeves = document.querySelector(".cover-sleeves");
+	const cover_hint = document.querySelector(".cover-hint");
+
+	/*-- Element | Card --*/
+
+	const wedding_card = document.querySelector(".wedding-card");
+	const card_content = document.querySelector(".card-content");
+	const card_background = document.getElementById("card-background");
+	const card_background_src = card_background?.dataset.src;
+	const card_background_music = document.getElementById("background-music");
+	const card_background_music_toggle = document.getElementById("music-toggle");
+
+	/*-- Element | Card | Section --*/
 
-    /*-- Element | Cover --*/
-
-    const cover = document.querySelector('.cover');
-    const cover_sleeves = document.querySelector('.cover-sleeves');
-    const cover_hint = document.querySelector('.cover-hint');
-    
-    /*-- Element | Card --*/
-
-    const wedding_card = document.querySelector('.wedding-card');
-    const card_content = document.querySelector('.card-content');
-    const card_background = document.getElementById('card-background');
-    const card_background_src = card_background?.dataset.src;
-    const card_background_music = document.getElementById('background-music');
-    const card_background_music_toggle = document.getElementById('music-toggle');
-
-    /*-- Element | Card | Section --*/
-
-    const section_main_card = document.querySelector('.section-main-card');  
-    const section_detail_countdown = new Date('2026-10-10T00:00:00+08:00').getTime();
-    const photo_stack = document.getElementById('photo-stack');
-
-    /*-- Element | Card | Modal --*/
-
-    const modal_overlay = document.getElementById('modal-overlay');
-    const modal_content = document.getElementById('modal-content');
-    const modal_close = document.getElementById('modal-close');
-
-    /*-- Card | Config --*/
-
-    const card_config = {
-        title: 'Majlis Perkahwinan Laila & Putra',
-        venue: 'Teratak Umi, Kemasik, Terengganu',
-        date: '2026-10-10',
-        start: '2026-10-10T11:00:00+08:00',
-        end: '2026-10-10T16:00:00+08:00',
-        latitude: 4.425253626329878,
-        longitude: 103.44727812355482,
-        contacts: {
-            fatihah: '60129663649',
-            munirah: '60139964399',
-            kharnie: '60129685617'
-        }
-    };
-
-    /*-- Cover --*/
-
-    let cover_opened = false;
-    let cover_hint_timer = null;
-
-    /*-- Cover | Sleeve --*/
-    
-    function scaleCoverSleeves() {
-        if (!cover_sleeves) {
-            return;
-        }
-
-        const sleeves = cover_sleeves.querySelectorAll('.sleeve');
-
-        if (!sleeves.length) {
-            return;
-        }
-
-        let designWidth = 0;
-        let designHeight = 0;
-
-        sleeves.forEach(sleeve => {
-            let mediaWidth;
-            let mediaHeight;
-    
-            if (sleeve.tagName === 'VIDEO') {
-                mediaWidth = sleeve.videoWidth;
-                mediaHeight = sleeve.videoHeight;
-            } else {
-                mediaWidth = sleeve.naturalWidth;
-                mediaHeight = sleeve.naturalHeight;
-            }
-    
-            if (!mediaWidth || !mediaHeight) {
-                return;
-            }
-    
-            designWidth += mediaWidth;
-            designHeight = Math.max(designHeight, mediaHeight);
-        });
-
-        if (!designWidth || !designHeight) {
-            return;
-        }
-
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-    
-        let scale;
-
-        if (viewportWidth <= 768) {
-            scale = viewportHeight / designHeight;
-        } else {
-            scale = viewportWidth / designWidth;
-        }
-
-        cover_sleeves.style.transform = `translate(-50%, -50%) scale(${scale})`;
-        cover_sleeves.style.setProperty('--landing-scale', scale);
-    }
-
-    scaleCoverSleeves();
-    window.addEventListener('resize', scaleCoverSleeves);
-
-    /*-- Cover | Hint --*/
-    
-    function showCoverHint() {
-        if (cover_opened || !cover_hint) {
-            return;
-        }
-
-        cover_hint.classList.add('visible');
-    }
-
-    cover_hint_timer = setTimeout(showCoverHint, 3000);
-
-    /*-- Cover | Open --*/
-    
-    function openInvitation() {
-        if (cover_opened) {
-            return;
-        }
-
-        cover_opened = true;
-
-        clearTimeout(
-            cover_hint_timer
-        );
-
-        cover_hint.classList.remove('visible');
-        document.body.classList.add('invitation-opening');
-        cover.classList.add('opened');
-
-        playBackgroundMusic();
-
-        setTimeout(() => {
-            document.body.classList.remove(
-                'invitation-opening'
-            );
-
-            document.body.classList.add(
-                'invitation-opened'
-            );
-
-            cover.hidden = true;
-        }, 1500);
-    }
-
-    cover.addEventListener('click', openInvitation);
-    
-    /*-- Card --*/
-    
-    function resizeWeddingCard() {
-        if (!wedding_card || !section_main_card) {
-            return;
-        }
-    
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-    
-        let mediaWidth;
-        let mediaHeight;
-    
-        if (section_main_card.tagName === 'VIDEO') {
-            mediaWidth = section_main_card.videoWidth;
-            mediaHeight = section_main_card.videoHeight;
-        } else {
-            mediaWidth = section_main_card.naturalWidth;
-            mediaHeight = section_main_card.naturalHeight;
-        }
-    
-        if (!mediaWidth || !mediaHeight) {
-            return;
-        }
-    
-        const mediaRatio = mediaWidth / mediaHeight;
-    
-        if (viewportWidth <= 768) {
-            wedding_card.style.width = `${viewportWidth}px`;
-        } else {
-            const cardWidth = viewportHeight * mediaRatio;
-    
-            wedding_card.style.width = `${cardWidth}px`;
-        }
-    }
-
-    if (section_main_card) {
-        if (section_main_card.complete) {
-            resizeWeddingCard();
-        } else {
-            section_main_card.addEventListener('load', resizeWeddingCard());
-        }
-    }
-    
-    window.addEventListener('resize', resizeWeddingCard());
-
-    /*-- Card | Navbar --*/
-
-    function syncFloatingUIWidth() {
-        if (!wedding_card) {
-            return;
-        }
-    
-        const cardWidth = wedding_card.getBoundingClientRect().width;
-    
-        document.documentElement.style.setProperty('--wedding-card-width',`${cardWidth}px`);
-    }
-    
-    syncFloatingUIWidth();
-    
-    window.addEventListener('resize', syncFloatingUIWidth);
-
-    /*-- Card | Background --*/
-
-    const BACKGROUND_TILE_OVERLAP = 2;
-
-    function createBackgroundVideoTile(top, height) {
-        const tile = document.createElement('div');
-
-        tile.className = 'card-background-tile';
-        tile.style.top = `${top}px`;
-        tile.style.height = `${height + BACKGROUND_TILE_OVERLAP}px`;
-
-        const video = document.createElement('video');
-
-        video.src = card_background_src;
-        video.autoplay = true;
-        video.loop = true;
-        video.muted = true;
-        video.playsInline = true;
-        video.preload = 'auto';
-
-        video.setAttribute('aria-hidden', 'true');
-        tile.appendChild(video);
-
-        card_background.appendChild(tile);
-
-        video.play().catch(() => {
-            // Browser may delay autoplay until interaction.
-        });
-
-        return tile;
-    }
-
-    /*-- Card | Background | Tiles --*/
-
-    function createBackgroundVideoTiles() {
-        if (!card_content || !card_background) {
-            return;
-        }
-
-        card_background.innerHTML = '';
-
-        const tileHeight = window.innerHeight;
-        const cardHeight = card_content.scrollHeight;
-        const tileCount = Math.ceil(cardHeight / tileHeight);
-
-        for (let index = 0; index < tileCount; index++) {
-            createBackgroundVideoTile(index * tileHeight, tileHeight);
-        }
-    }
-
-    createBackgroundVideoTiles();
-
-    let backgroundResizeTimer;
-
-    window.addEventListener('resize', () => {
-        clearTimeout(backgroundResizeTimer);
-
-        backgroundResizeTimer =
-            setTimeout(() => {
-                createBackgroundVideoTiles();
-            }, 150);
-    });
-
-    /*-- Card | Background | Music --*/
-
-    let musicPlaying = false;
-
-    function setMusicIcon(playing) {
-        card_background_music_toggle.innerHTML = playing
-            ? `<i data-lucide="volume-2"></i>`
-            : `<i data-lucide="volume-x"></i>`;
-    
-        createIcons({
-            icons: {
-                VolumeX,
-                Volume2
-            }
-        });
-    }
-
-    function playBackgroundMusic() {
-        card_background_music
-            .play()
-            .then(() => {
-                musicPlaying = true;
-                setMusicIcon(true);
-            })
-            .catch(() => {
-                musicPlaying = false;
-                setMusicIcon(false);
-            });
-    }
-
-    function toggleBackgroundMusic() {
-        if (musicPlaying) {
-            card_background_music.pause();
-            musicPlaying = false;
-            setMusicIcon(false);
-    
-            return;
-        }
-    
-        playBackgroundMusic();
-    }
-
-    card_background_music_toggle.addEventListener('click', toggleBackgroundMusic);
-
-    /*-- Card | Countdown --*/
-
-    const countdownDays = document.getElementById('countdown-days');
-    const countdownHours = document.getElementById('countdown-hours');
-    const countdownMinutes = document.getElementById('countdown-minutes');
-    const countdownSeconds = document.getElementById('countdown-seconds');
-
-    function updateCountdown() {
-
-        if (!countdownDays || !countdownHours || !countdownMinutes ||!countdownSeconds) {
-            return;
-        }
-
-        const now = Date.now();
-        const difference = section_detail_countdown - now;
-
-        if (difference <= 0) {
-            countdownDays.textContent = '00';
-            countdownHours.textContent = '00';
-            countdownMinutes.textContent = '00';
-            countdownSeconds.textContent = '00';
-
-            return;
-        }
-
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((difference / (1000 * 60)) % 60);
-        const seconds = Math.floor((difference / 1000) % 60);
-
-        countdownDays.textContent = String(days).padStart(2, '0');
-        countdownHours.textContent = String(hours).padStart(2, '0');
-        countdownMinutes.textContent = String(minutes).padStart(2, '0');
-        countdownSeconds.textContent = String(seconds).padStart(2, '0');
-    }
-
-    updateCountdown();
-
-    setInterval(updateCountdown, 1000);
-
-    /*-- Card | Section | Gallery --*/
-
-    function initialisePhotoStack() {
-
-        if (!photo_stack) {
-            return;
-        }
-
-        let images = [];
-
-        try {
-            images = JSON.parse(
-                photo_stack.dataset.images || '[]'
-            );
-        } catch (error) {
-            console.error(
-                'Gallery images could not be loaded:',
-                error
-            );
-
-            return;
-        }
-
-        if (!Array.isArray(images) || !images.length) {
-            return;
-        }
-
-
-        /*
+	const section_main_card = document.querySelector(".section-main-card");
+	const section_detail_countdown = new Date(
+		"2026-10-31T00:00:00+08:00"
+	).getTime();
+	const photo_stack = document.getElementById("photo-stack");
+
+	/*-- Element | Card | Modal --*/
+
+	const modal_overlay = document.getElementById("modal-overlay");
+	const modal_content = document.getElementById("modal-content");
+	const modal_close = document.getElementById("modal-close");
+
+	/*-- Card | Config --*/
+
+	const card_config = {
+		title: "Majlis Perkahwinan Putra & Laila",
+		venue: "Asiana Grand Hall, Petaling Jaya, Selangor",
+		date: "2026-10-31",
+		start: "2026-10-31T11:00:00+08:00",
+		end: "2026-10-31T16:00:00+08:00",
+		latitude: 4.425253626329878,
+		longitude: 103.44727812355482,
+		contacts: {
+			fatihah: "60129663649",
+			munirah: "60139964399",
+			kharnie: "60129685617",
+		},
+	};
+
+	/*-- Cover --*/
+
+	let cover_opened = false;
+	let cover_hint_timer = null;
+
+	/*-- Cover | Sleeve --*/
+
+	function scaleCoverSleeves() {
+		if (!cover_sleeves) {
+			return;
+		}
+
+		const sleeves = cover_sleeves.querySelectorAll(".sleeve");
+
+		if (!sleeves.length) {
+			return;
+		}
+
+		let designWidth = 0;
+		let designHeight = 0;
+
+		sleeves.forEach((sleeve) => {
+			let mediaWidth;
+			let mediaHeight;
+
+			if (sleeve.tagName === "VIDEO") {
+				mediaWidth = sleeve.videoWidth;
+				mediaHeight = sleeve.videoHeight;
+			} else {
+				mediaWidth = sleeve.naturalWidth;
+				mediaHeight = sleeve.naturalHeight;
+			}
+
+			if (!mediaWidth || !mediaHeight) {
+				return;
+			}
+
+			designWidth += mediaWidth;
+			designHeight = Math.max(designHeight, mediaHeight);
+		});
+
+		if (!designWidth || !designHeight) {
+			return;
+		}
+
+		const viewportWidth = window.innerWidth;
+		const viewportHeight = window.innerHeight;
+
+		let scale;
+
+		if (viewportWidth <= 768) {
+			scale = viewportHeight / designHeight;
+		} else {
+			scale = viewportWidth / designWidth;
+		}
+
+		cover_sleeves.style.transform = `translate(-50%, -50%) scale(${scale})`;
+		cover_sleeves.style.setProperty("--landing-scale", scale);
+	}
+
+	scaleCoverSleeves();
+	window.addEventListener("resize", scaleCoverSleeves);
+
+	/*-- Cover | Hint --*/
+
+	function showCoverHint() {
+		if (cover_opened || !cover_hint) {
+			return;
+		}
+
+		cover_hint.classList.add("visible");
+	}
+
+	cover_hint_timer = setTimeout(showCoverHint, 3000);
+
+	/*-- Cover | Open --*/
+
+	function openInvitation() {
+		if (cover_opened) {
+			return;
+		}
+
+		cover_opened = true;
+
+		clearTimeout(cover_hint_timer);
+
+		cover_hint.classList.remove("visible");
+		document.body.classList.add("invitation-opening");
+		cover.classList.add("opened");
+
+		playBackgroundMusic();
+
+		setTimeout(() => {
+			document.body.classList.remove("invitation-opening");
+
+			document.body.classList.add("invitation-opened");
+
+			cover.hidden = true;
+		}, 1500);
+	}
+
+	cover.addEventListener("click", openInvitation);
+
+	/*-- Card --*/
+
+	function resizeWeddingCard() {
+		if (!wedding_card || !section_main_card) {
+			return;
+		}
+
+		const viewportWidth = window.innerWidth;
+		const viewportHeight = window.innerHeight;
+
+		let mediaWidth;
+		let mediaHeight;
+
+		if (section_main_card.tagName === "VIDEO") {
+			mediaWidth = section_main_card.videoWidth;
+			mediaHeight = section_main_card.videoHeight;
+		} else {
+			mediaWidth = section_main_card.naturalWidth;
+			mediaHeight = section_main_card.naturalHeight;
+		}
+
+		if (!mediaWidth || !mediaHeight) {
+			return;
+		}
+
+		const mediaRatio = mediaWidth / mediaHeight;
+
+		if (viewportWidth <= 768) {
+			wedding_card.style.width = `${viewportWidth}px`;
+		} else {
+			const cardWidth = viewportHeight * mediaRatio;
+
+			wedding_card.style.width = `${cardWidth}px`;
+		}
+	}
+
+	if (section_main_card) {
+		if (section_main_card.complete) {
+			resizeWeddingCard();
+		} else {
+			section_main_card.addEventListener("load", resizeWeddingCard());
+		}
+	}
+
+	window.addEventListener("resize", resizeWeddingCard());
+
+	/*-- Card | Navbar --*/
+
+	function syncFloatingUIWidth() {
+		if (!wedding_card) {
+			return;
+		}
+
+		const cardWidth = wedding_card.getBoundingClientRect().width;
+
+		document.documentElement.style.setProperty(
+			"--wedding-card-width",
+			`${cardWidth}px`
+		);
+	}
+
+	syncFloatingUIWidth();
+
+	window.addEventListener("resize", syncFloatingUIWidth);
+
+	/*-- Card | Background --*/
+
+	const BACKGROUND_TILE_OVERLAP = 2;
+
+	function createBackgroundVideoTile(top, height) {
+		const tile = document.createElement("div");
+
+		tile.className = "card-background-tile";
+		tile.style.top = `${top}px`;
+		tile.style.height = `${height + BACKGROUND_TILE_OVERLAP}px`;
+
+		const video = document.createElement("video");
+
+		video.src = card_background_src;
+		video.autoplay = true;
+		video.loop = true;
+		video.muted = true;
+		video.playsInline = true;
+		video.preload = "auto";
+
+		video.setAttribute("aria-hidden", "true");
+		tile.appendChild(video);
+
+		card_background.appendChild(tile);
+
+		video.play().catch(() => {
+			// Browser may delay autoplay until interaction.
+		});
+
+		return tile;
+	}
+
+	/*-- Card | Background | Tiles --*/
+
+	function createBackgroundVideoTiles() {
+		if (!card_content || !card_background) {
+			return;
+		}
+
+		card_background.innerHTML = "";
+
+		const tileHeight = window.innerHeight;
+		const cardHeight = card_content.scrollHeight;
+		const tileCount = Math.ceil(cardHeight / tileHeight);
+
+		for (let index = 0; index < tileCount; index++) {
+			createBackgroundVideoTile(index * tileHeight, tileHeight);
+		}
+	}
+
+	createBackgroundVideoTiles();
+
+	let backgroundResizeTimer;
+
+	window.addEventListener("resize", () => {
+		clearTimeout(backgroundResizeTimer);
+
+		backgroundResizeTimer = setTimeout(() => {
+			createBackgroundVideoTiles();
+		}, 150);
+	});
+
+	/*-- Card | Background | Music --*/
+
+	let musicPlaying = false;
+
+	function setMusicIcon(playing) {
+		card_background_music_toggle.innerHTML = playing
+			? `<i data-lucide="volume-2"></i>`
+			: `<i data-lucide="volume-x"></i>`;
+
+		createIcons({
+			icons: {
+				VolumeX,
+				Volume2,
+			},
+		});
+	}
+
+	function playBackgroundMusic() {
+		card_background_music
+			.play()
+			.then(() => {
+				musicPlaying = true;
+				setMusicIcon(true);
+			})
+			.catch(() => {
+				musicPlaying = false;
+				setMusicIcon(false);
+			});
+	}
+
+	function toggleBackgroundMusic() {
+		if (musicPlaying) {
+			card_background_music.pause();
+			musicPlaying = false;
+			setMusicIcon(false);
+
+			return;
+		}
+
+		playBackgroundMusic();
+	}
+
+	card_background_music_toggle.addEventListener("click", toggleBackgroundMusic);
+
+	/*-- Card | Countdown --*/
+
+	const countdownDays = document.getElementById("countdown-days");
+	const countdownHours = document.getElementById("countdown-hours");
+	const countdownMinutes = document.getElementById("countdown-minutes");
+	const countdownSeconds = document.getElementById("countdown-seconds");
+
+	function updateCountdown() {
+		if (
+			!countdownDays ||
+			!countdownHours ||
+			!countdownMinutes ||
+			!countdownSeconds
+		) {
+			return;
+		}
+
+		const now = Date.now();
+		const difference = section_detail_countdown - now;
+
+		if (difference <= 0) {
+			countdownDays.textContent = "00";
+			countdownHours.textContent = "00";
+			countdownMinutes.textContent = "00";
+			countdownSeconds.textContent = "00";
+
+			return;
+		}
+
+		const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+		const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+		const minutes = Math.floor((difference / (1000 * 60)) % 60);
+		const seconds = Math.floor((difference / 1000) % 60);
+
+		countdownDays.textContent = String(days).padStart(2, "0");
+		countdownHours.textContent = String(hours).padStart(2, "0");
+		countdownMinutes.textContent = String(minutes).padStart(2, "0");
+		countdownSeconds.textContent = String(seconds).padStart(2, "0");
+	}
+
+	updateCountdown();
+
+	setInterval(updateCountdown, 1000);
+
+	/*-- Card | Section | Gallery --*/
+
+	function initialisePhotoStack() {
+		if (!photo_stack) {
+			return;
+		}
+
+		let images = [];
+
+		try {
+			images = JSON.parse(photo_stack.dataset.images || "[]");
+		} catch (error) {
+			console.error("Gallery images could not be loaded:", error);
+
+			return;
+		}
+
+		if (!Array.isArray(images) || !images.length) {
+			return;
+		}
+
+		/*
         |--------------------------------------------------------------------------
         | Create Photo Cards
         |--------------------------------------------------------------------------
         */
 
-        const cards = [];
+		const cards = [];
 
-        images.forEach((src, index) => {
+		images.forEach((src, index) => {
+			if (!src) {
+				return;
+			}
 
-            if (!src) {
-                return;
-            }
+			const card = document.createElement("div");
 
-            const card =
-                document.createElement('div');
+			card.className = "photo-card";
 
-            card.className =
-                'photo-card';
+			const image = document.createElement("img");
 
+			image.src = src;
+			image.alt = `Galeri ${index + 1}`;
+			image.loading = "lazy";
+			image.draggable = false;
 
-            const image =
-                document.createElement('img');
+			card.appendChild(image);
 
-            image.src = src;
-            image.alt = `Galeri ${index + 1}`;
-            image.loading = 'lazy';
-            image.draggable = false;
+			photo_stack.appendChild(card);
 
+			cards.push(card);
+		});
 
-            card.appendChild(
-                image
-            );
+		if (!cards.length) {
+			return;
+		}
 
-            photo_stack.appendChild(
-                card
-            );
-
-            cards.push(card);
-
-        });
-
-
-        if (!cards.length) {
-            return;
-        }
-
-
-        /*
+		/*
         |--------------------------------------------------------------------------
         | Stack Configuration
         |--------------------------------------------------------------------------
         */
 
-        const stack_positions = [
-            {
-                rotation: -1,
-                x: 0,
-                y: 0
-            },
-            {
-                rotation: 6,
-                x: 10,
-                y: 3
-            },
-            {
-                rotation: -8,
-                x: -10,
-                y: 8
-            },
-            {
-                rotation: 5,
-                x: 12,
-                y: 11
-            },
-            {
-                rotation: -5,
-                x: -12,
-                y: 14
-            }
-        ];
+		const stack_positions = [
+			{
+				rotation: -1,
+				x: 0,
+				y: 0,
+			},
+			{
+				rotation: 6,
+				x: 10,
+				y: 3,
+			},
+			{
+				rotation: -8,
+				x: -10,
+				y: 8,
+			},
+			{
+				rotation: 5,
+				x: 12,
+				y: 11,
+			},
+			{
+				rotation: -5,
+				x: -12,
+				y: 14,
+			},
+		];
 
-
-        /*
+		/*
         |--------------------------------------------------------------------------
         | Apply Stack Position
         |--------------------------------------------------------------------------
         */
 
-        function updatePhotoStack() {
+		function updatePhotoStack() {
+			cards.forEach((card, index) => {
+				const position = stack_positions[index % stack_positions.length];
 
-            cards.forEach(
-                (card, index) => {
+				const isFront = index === 0;
 
-                    const position =
-                        stack_positions[
-                            index %
-                            stack_positions.length
-                        ];
+				card.style.setProperty("--rotation", `${position.rotation}deg`);
 
-                    const isFront =
-                        index === 0;
+				card.style.setProperty("--offset-x", `${position.x}px`);
 
+				card.style.setProperty("--offset-y", `${position.y}px`);
 
-                    card.style.setProperty(
-                        '--rotation',
-                        `${position.rotation}deg`
-                    );
+				card.style.setProperty("--stack-index", cards.length - index);
 
-                    card.style.setProperty(
-                        '--offset-x',
-                        `${position.x}px`
-                    );
+				card.classList.toggle("is-front", isFront);
+			});
+		}
 
-                    card.style.setProperty(
-                        '--offset-y',
-                        `${position.y}px`
-                    );
-
-                    card.style.setProperty(
-                        '--stack-index',
-                        cards.length - index
-                    );
-
-
-                    card.classList.toggle(
-                        'is-front',
-                        isFront
-                    );
-
-                }
-            );
-
-        }
-
-
-        /*
+		/*
         |--------------------------------------------------------------------------
         | Move Front Photo To Back
         |--------------------------------------------------------------------------
         */
 
-        function cyclePhotoStack() {
+		function cyclePhotoStack() {
+			if (cards.length <= 1) {
+				return;
+			}
 
-            if (cards.length <= 1) {
-                return;
-            }
+			const front = cards.shift();
 
-            const front =
-                cards.shift();
+			cards.push(front);
 
-            cards.push(
-                front
-            );
+			updatePhotoStack();
+		}
 
-            updatePhotoStack();
-
-        }
-
-
-        /*
+		/*
         |--------------------------------------------------------------------------
         | Click
         |--------------------------------------------------------------------------
         */
 
-        photo_stack.addEventListener(
-            'click',
-            event => {
+		photo_stack.addEventListener("click", (event) => {
+			const front = cards[0];
 
-                const front =
-                    cards[0];
+			if (!front) {
+				return;
+			}
 
-                if (!front) {
-                    return;
-                }
-
-                /*
+			/*
                 | Only the current front photo
                 | should respond to the click.
                 */
 
-                if (
-                    event.target === front ||
-                    front.contains(event.target)
-                ) {
+			if (event.target === front || front.contains(event.target)) {
+				cyclePhotoStack();
+			}
+		});
 
-                    cyclePhotoStack();
-
-                }
-
-            }
-        );
-
-
-        /*
+		/*
         |--------------------------------------------------------------------------
         | Initial Render
         |--------------------------------------------------------------------------
         */
 
-        updatePhotoStack();
+		updatePhotoStack();
+	}
 
-    }
+	initialisePhotoStack();
 
-    initialisePhotoStack();
+	/*-- Card | Modal --*/
 
-    /*-- Card | Modal --*/
-
-    const modal_templates = {
-        calendar: `
+	const modal_templates = {
+		calendar: `
             <div class="modal-header">
                 <div class="modal-icon">
                     <i data-lucide="calendar-check-2"></i>
@@ -625,11 +557,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
 
                         <strong>
-                            Sabtu, 10 Oktober 2026
+                            Sabtu, 31 Oktober 2026
                         </strong>
 
                         <span>
-                            28 Rabiul Akhir 1448H
+                            28 Jamadil Awal 1448H
                         </span>
                     </div>
 
@@ -668,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `,
 
-        contact: `
+		contact: `
             <div class="modal-header">
                 <div class="modal-icon">
                     <i data-lucide="phone-call"></i>
@@ -685,18 +617,18 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <div class="modal-body">
-                <div class="modal-info" data-phone="60129663649">
+                <div class="modal-info" data-phone="60122124687">
                     <div class="modal-info-item">
                         <div class="modal-info-title">
                             <i data-lucide="user"></i>
                         </div>
 
                         <strong>
-                            012-966 3649
+                            012-2124 687
                         </strong>
 
                         <span>
-                            Fatihah
+                            Juliana
                         </span>
                     </div>
 
@@ -720,18 +652,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <div class="modal-info" data-phone="60139964399">
+                <div class="modal-info" data-phone="60129719772">
                     <div class="modal-info-item">
                         <div class="modal-info-title">
                             <i data-lucide="user"></i>
                         </div>
 
                         <strong>
-                            013-996 4399
+                            012-971 9772
                         </strong>
 
                         <span>
-                            Munirah
+                            Shah
                         </span>
                     </div>
 
@@ -755,18 +687,53 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <div class="modal-info" data-phone="60129685617">
+                <div class="modal-info" data-phone="60133454658">
                     <div class="modal-info-item">
                         <div class="modal-info-title">
                             <i data-lucide="user"></i>
                         </div>
 
                         <strong>
-                            012-968 5617
+                            013-345 4658
                         </strong>
 
                         <span>
-                            Kharnie
+                            Amin
+                        </span>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="modal-button" data-action="call">
+                            <i data-lucide="phone"></i>
+
+                            <span>
+                                Call
+                            </span>
+                        </button>
+
+
+                        <button type="button" class="modal-button modal-button-secondary" data-action="whatsapp">
+                            <i data-lucide="message-circle"></i>
+
+                            <span>
+                                WhatsApp
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal-info" data-phone="60122124662">
+                    <div class="modal-info-item">
+                        <div class="modal-info-title">
+                            <i data-lucide="user"></i>
+                        </div>
+
+                        <strong>
+                            012-2124 662
+                        </strong>
+
+                        <span>
+                            Iffa
                         </span>
                     </div>
 
@@ -792,7 +759,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `,
 
-        location: `
+		location: `
             <div class="modal-header">
                 <div class="modal-icon">
                     <i data-lucide="map-pinned"></i>
@@ -815,11 +782,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
 
                         <strong>
-                            Teratak Umi
+                            Asiana Grand Hall PJ
                         </strong>
 
                         <span>
-                            Kemasik, Terengganu
+                            Petaling Jaya, Selangor
                         </span>
                     </div>
                 </div>
@@ -843,8 +810,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
         `,
-        
-        rsvp: `
+
+		rsvp: `
             <div class="modal-header">
                 <div class="modal-icon">
                     <i data-lucide="mail-check"></i>
@@ -918,7 +885,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `,
 
-        'salam-kaut': `
+		"salam-kaut": `
             <div class="modal-header">
                 <h2 class="modal-title">
                     Salam Kaut
@@ -954,13 +921,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             <strong>
                                 No. Akaun: 
                             </strong>
-                            987654321
+                            16304200124860
                         </span>
                     </div>
                 </div>
             </div>
 
-            <button type="button" class="modal-button" data-action="copy-account" data-account="987654321">
+            <button type="button" class="modal-button" data-action="copy-account" data-account="16304200124860">
                 <i data-lucide="copy"></i>
 
                 <span>
@@ -969,7 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
         `,
 
-        live: `
+		live: `
             <div class="modal-header">
                 <div class="modal-icon">
                     <i data-lucide="radio"></i>
@@ -995,7 +962,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
         `,
 
-        guestbook: `
+		guestbook: `
             <div class="modal-header">
                 <div class="modal-icon">
                     <i data-lucide="message-square-heart"></i>
@@ -1062,443 +1029,276 @@ document.addEventListener('DOMContentLoaded', () => {
                 </form>
             </div>
         `,
-    };
+	};
 
-    function openModal(type) {
-        const content = modal_templates[type];
+	function openModal(type) {
+		const content = modal_templates[type];
 
-        if (!content) {
-            return;
-        }
+		if (!content) {
+			return;
+		}
 
-        modal_content.innerHTML = content;
+		modal_content.innerHTML = content;
 
-        if (
-            typeof Alpine !==
-            'undefined'
-        ) {
-        
-            Alpine.initTree(
-                modal_content
-            );
-        
-        }
+		if (typeof Alpine !== "undefined") {
+			Alpine.initTree(modal_content);
+		}
 
-        modal_overlay.classList.add('active');
-        modal_overlay.setAttribute('aria-hidden', 'false');
+		modal_overlay.classList.add("active");
+		modal_overlay.setAttribute("aria-hidden", "false");
 
-        document.body.classList.add('modal-open');
+		document.body.classList.add("modal-open");
 
-        createIcons({icons});
-        initialiseModal(type);
+		createIcons({ icons });
+		initialiseModal(type);
 
-        requestAnimationFrame(() => {
-            const firstInput = modal_content.querySelector('input, select, textarea, button');
+		requestAnimationFrame(() => {
+			const firstInput = modal_content.querySelector(
+				"input, select, textarea, button"
+			);
 
-            if (firstInput) {
-                firstInput.focus();
-            }
-        });
-    }
+			if (firstInput) {
+				firstInput.focus();
+			}
+		});
+	}
 
-    function closeModal() {
-        modal_overlay.classList.remove('active');
-        modal_overlay.setAttribute('aria-hidden', 'true');
+	function closeModal() {
+		modal_overlay.classList.remove("active");
+		modal_overlay.setAttribute("aria-hidden", "true");
 
-        document.body.classList.remove('modal-open');
-    }
+		document.body.classList.remove("modal-open");
+	}
 
-    function initialiseModal(type) {
-        if (type === 'rsvp') {
-            initialiseRSVP();
-        }
-        if (type === 'guestbook') {
-            initialiseGuestbook();
-        }
+	function initialiseModal(type) {
+		if (type === "rsvp") {
+			initialiseRSVP();
+		}
+		if (type === "guestbook") {
+			initialiseGuestbook();
+		}
 
-        initialiseModalActions();
-    }
+		initialiseModalActions();
+	}
 
-
-/* =========================================================
+	/* =========================================================
   RSVP
   ========================================================= */
 
-  function initialiseRSVP() {
-
-    /*
+	function initialiseRSVP() {
+		/*
     |--------------------------------------------------------------------------
     | Elements
     |--------------------------------------------------------------------------
     */
 
-    const form =
-        document.getElementById(
-            'rsvp-form'
-        );
+		const form = document.getElementById("rsvp-form");
 
-    const name =
-        document.getElementById(
-            'rsvp-name'
-        );
+		const name = document.getElementById("rsvp-name");
 
-    const attendance =
-        document.getElementById(
-            'rsvp-attendance'
-        );
+		const attendance = document.getElementById("rsvp-attendance");
 
-    const fields =
-        document.getElementById(
-            'rsvp-fields'
-        );
+		const fields = document.getElementById("rsvp-fields");
 
-    const nameError =
-        document.getElementById(
-            'rsvp-name-error'
-        );
+		const nameError = document.getElementById("rsvp-name-error");
 
-    const attendanceError =
-        document.getElementById(
-            'rsvp-attendance-error'
-        );
+		const attendanceError = document.getElementById("rsvp-attendance-error");
 
-    const formError =
-        document.getElementById(
-            'rsvp-form-error'
-        );
+		const formError = document.getElementById("rsvp-form-error");
 
-    const submitButton =
-        document.getElementById(
-            'rsvp-submit'
-        );
+		const submitButton = document.getElementById("rsvp-submit");
 
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | RSVP URL
     |--------------------------------------------------------------------------
     */
 
-    const rsvpUrl =
-        document
-            .querySelector(
-                'meta[name="url-rsvp"]'
-            )
-            ?.getAttribute(
-                'content'
-            );
+		const rsvpUrl = document
+			.querySelector('meta[name="url-rsvp"]')
+			?.getAttribute("content");
 
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | CSRF Token
     |--------------------------------------------------------------------------
     */
 
-    const csrfToken =
-        document
-            .querySelector(
-                'meta[name="csrf-token"]'
-            )
-            ?.getAttribute(
-                'content'
-            );
+		const csrfToken = document
+			.querySelector('meta[name="csrf-token"]')
+			?.getAttribute("content");
 
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Safety check
     |--------------------------------------------------------------------------
     */
 
-    if (
-        !form ||
-        !name ||
-        !attendance ||
-        !fields ||
-        !rsvpUrl ||
-        !csrfToken
-    ) {
+		if (!form || !name || !attendance || !fields || !rsvpUrl || !csrfToken) {
+			console.error("RSVP form could not be initialised.");
 
-        console.error(
-            'RSVP form could not be initialised.'
-        );
+			return;
+		}
 
-        return;
-
-    }
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Clear Errors
     |--------------------------------------------------------------------------
     */
 
-    function clearErrors() {
-
-        /*
+		function clearErrors() {
+			/*
         | Name
         */
 
-        name.classList.remove(
-            'error'
-        );
+			name.classList.remove("error");
 
-        if (nameError) {
+			if (nameError) {
+				nameError.textContent = "";
+			}
 
-            nameError.textContent =
-                '';
-
-        }
-
-
-        /*
+			/*
         | Attendance
         */
 
-        attendance.classList.remove(
-            'error'
-        );
+			attendance.classList.remove("error");
 
-        if (attendanceError) {
+			if (attendanceError) {
+				attendanceError.textContent = "";
+			}
 
-            attendanceError.textContent =
-                '';
-
-        }
-
-
-        /*
+			/*
         | Pax
         */
 
-        const pax =
-            document.getElementById(
-                'rsvp-pax'
-            );
+			const pax = document.getElementById("rsvp-pax");
 
-        const paxError =
-            document.getElementById(
-                'rsvp-pax-error'
-            );
+			const paxError = document.getElementById("rsvp-pax-error");
 
-        if (pax) {
+			if (pax) {
+				pax.classList.remove("error");
+			}
 
-            pax.classList.remove(
-                'error'
-            );
+			if (paxError) {
+				paxError.textContent = "";
+			}
 
-        }
-
-        if (paxError) {
-
-            paxError.textContent =
-                '';
-
-        }
-
-
-        /*
+			/*
         | General error
         */
 
-        if (formError) {
+			if (formError) {
+				formError.textContent = "";
+			}
+		}
 
-            formError.textContent =
-                '';
-
-        }
-
-    }
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Display Validation Errors
     |--------------------------------------------------------------------------
     */
 
-    function displayErrors(errors) {
-
-        /*
+		function displayErrors(errors) {
+			/*
         |--------------------------------------------------------------
         | Name
         |--------------------------------------------------------------
         */
 
-        if (
-            errors.name
-        ) {
+			if (errors.name) {
+				name.classList.add("error");
 
-            name.classList.add(
-                'error'
-            );
+				if (nameError) {
+					nameError.textContent = errors.name[0];
+				}
+			}
 
-            if (nameError) {
-
-                nameError.textContent =
-                    errors.name[0];
-
-            }
-
-        }
-
-
-        /*
+			/*
         |--------------------------------------------------------------
         | Attendance
         |--------------------------------------------------------------
         */
 
-        if (
-            errors.attendance
-        ) {
+			if (errors.attendance) {
+				attendance.classList.add("error");
 
-            attendance.classList.add(
-                'error'
-            );
+				if (attendanceError) {
+					attendanceError.textContent = errors.attendance[0];
+				}
+			}
 
-            if (attendanceError) {
-
-                attendanceError.textContent =
-                    errors.attendance[0];
-
-            }
-
-        }
-
-
-        /*
+			/*
         |--------------------------------------------------------------
         | Pax
         |--------------------------------------------------------------
         */
 
-        if (
-            errors.pax
-        ) {
+			if (errors.pax) {
+				const pax = document.getElementById("rsvp-pax");
 
-            const pax =
-                document.getElementById(
-                    'rsvp-pax'
-                );
+				const paxError = document.getElementById("rsvp-pax-error");
 
-            const paxError =
-                document.getElementById(
-                    'rsvp-pax-error'
-                );
+				if (pax) {
+					pax.classList.add("error");
+				}
 
-            if (pax) {
+				if (paxError) {
+					paxError.textContent = errors.pax[0];
+				}
+			}
 
-                pax.classList.add(
-                    'error'
-                );
-
-            }
-
-            if (paxError) {
-
-                paxError.textContent =
-                    errors.pax[0];
-
-            }
-
-        }
-
-
-        /*
+			/*
         |--------------------------------------------------------------
         | Focus first invalid field
         |--------------------------------------------------------------
         */
 
-        if (
-            errors.name
-        ) {
+			if (errors.name) {
+				name.focus();
+			} else if (errors.attendance) {
+				attendance.focus();
+			} else if (errors.pax) {
+				const pax = document.getElementById("rsvp-pax");
 
-            name.focus();
+				if (pax) {
+					pax.focus();
+				}
+			}
+		}
 
-        }
-
-        else if (
-            errors.attendance
-        ) {
-
-            attendance.focus();
-
-        }
-
-        else if (
-            errors.pax
-        ) {
-
-            const pax =
-                document.getElementById(
-                    'rsvp-pax'
-                );
-
-            if (pax) {
-
-                pax.focus();
-
-            }
-
-        }
-
-    }
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Attendance Change
     |--------------------------------------------------------------------------
     */
 
-    attendance.addEventListener(
-        'change',
-        () => {
-
-            /*
+		attendance.addEventListener("change", () => {
+			/*
             | Clear attendance error
             */
 
-            attendance.classList.remove(
-                'error'
-            );
+			attendance.classList.remove("error");
 
-            if (attendanceError) {
+			if (attendanceError) {
+				attendanceError.textContent = "";
+			}
 
-                attendanceError.textContent =
-                    '';
-
-            }
-
-
-            /*
+			/*
             | Clear general form error
             */
 
-            if (formError) {
+			if (formError) {
+				formError.textContent = "";
+			}
 
-                formError.textContent =
-                    '';
-
-            }
-
-
-            /*
+			/*
             |--------------------------------------------------------------------------
             | Hadir
             |--------------------------------------------------------------------------
             */
 
-            if (
-                attendance.value ===
-                'Yes'
-            ) {
-
-                fields.innerHTML = `
+			if (attendance.value === "Yes") {
+				fields.innerHTML = `
 
                     <div class="row">
 
@@ -1542,85 +1342,59 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
 
                 `;
-
-            }
-
-
-            /*
+			} else {
+				/*
             |--------------------------------------------------------------------------
             | Tidak Hadir
             |--------------------------------------------------------------------------
             */
-
-            else {
-
-                /*
+				/*
                 | Remove Pax completely
                 */
 
-                fields.innerHTML =
-                    '';
+				fields.innerHTML = "";
+			}
 
-            }
-
-
-            /*
+			/*
             |--------------------------------------------------------------------------
             | Re-render Lucide
             |--------------------------------------------------------------------------
             */
 
-            if (
-                typeof lucide !==
-                'undefined'
-            ) {
+			if (typeof lucide !== "undefined") {
+				lucide.createIcons();
+			}
+		});
 
-                lucide.createIcons();
-
-            }
-
-        }
-    );
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | RSVP Submit
     |--------------------------------------------------------------------------
     */
 
-    form.addEventListener(
-        'submit',
-        async event => {
+		form.addEventListener("submit", async (event) => {
+			event.preventDefault();
 
-            event.preventDefault();
-
-
-            /*
+			/*
             |--------------------------------------------------------------------------
             | Clear previous errors
             |--------------------------------------------------------------------------
             */
 
-            clearErrors();
+			clearErrors();
 
-
-            /*
+			/*
             |--------------------------------------------------------------------------
             | Disable submit button
             |--------------------------------------------------------------------------
             */
 
-            if (submitButton) {
+			if (submitButton) {
+				submitButton.disabled = true;
 
-                submitButton.disabled =
-                    true;
+				submitButton.classList.add("loading");
 
-                submitButton.classList.add(
-                    'loading'
-                );
-
-                submitButton.innerHTML = `
+				submitButton.innerHTML = `
 
                     <span class="d-loading d-loading-spinner"></span>
 
@@ -1629,163 +1403,92 @@ document.addEventListener('DOMContentLoaded', () => {
                     </span>
 
                 `;
+			}
 
-            }
-
-
-            /*
+			/*
             |--------------------------------------------------------------------------
             | Form Data
             |--------------------------------------------------------------------------
             */
 
-            const formData =
-                new FormData(
-                    form
-                );
+			const formData = new FormData(form);
 
-
-            /*
+			/*
             |--------------------------------------------------------------------------
             | AJAX Request
             |--------------------------------------------------------------------------
             */
 
-            try {
+			try {
+				const response = await fetch(rsvpUrl, {
+					method: "POST",
 
-                const response =
-                    await fetch(
-                        rsvpUrl,
-                        {
+					headers: {
+						"X-CSRF-TOKEN": csrfToken,
 
-                            method:
-                                'POST',
+						Accept: "application/json",
 
-                            headers: {
+						"X-Requested-With": "XMLHttpRequest",
+					},
 
-                                'X-CSRF-TOKEN':
-                                    csrfToken,
+					body: formData,
+				});
 
-                                'Accept':
-                                    'application/json',
-
-                                'X-Requested-With':
-                                    'XMLHttpRequest'
-
-                            },
-
-                            body:
-                                formData
-
-                        }
-                    );
-
-
-                /*
+				/*
                 |--------------------------------------------------------------------------
                 | Validation Error
                 |--------------------------------------------------------------------------
                 */
 
-                if (
-                    response.status ===
-                    422
-                ) {
+				if (response.status === 422) {
+					const data = await response.json();
 
-                    const data =
-                        await response.json();
+					displayErrors(data.errors || {});
 
+					return;
+				}
 
-                    displayErrors(
-                        data.errors ||
-                        {}
-                    );
-
-
-                    return;
-
-                }
-
-
-                /*
+				/*
                 |--------------------------------------------------------------------------
                 | Other HTTP Errors
                 |--------------------------------------------------------------------------
                 */
 
-                if (
-                    !response.ok
-                ) {
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`);
+				}
 
-                    throw new Error(
-                        `HTTP ${response.status}`
-                    );
-
-                }
-
-
-                /*
+				/*
                 |--------------------------------------------------------------------------
                 | Success
                 |--------------------------------------------------------------------------
                 */
 
-                const data =
-                    await response.json();
+				const data = await response.json();
 
+				if (data.success) {
+					showRSVPSuccess(data.message);
+				}
+			} catch (error) {
+				console.error("RSVP submission failed:", error);
 
-                if (
-                    data.success
-                ) {
-
-                    showRSVPSuccess(
-                        data.message
-                    );
-
-                }
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    'RSVP submission failed:',
-                    error
-                );
-
-
-                if (formError) {
-
-                    formError.textContent =
-                        'Maaf, RSVP tidak dapat dihantar buat masa ini. Sila cuba lagi.';
-
-                }
-
-            }
-
-            finally {
-
-                /*
+				if (formError) {
+					formError.textContent =
+						"Maaf, RSVP tidak dapat dihantar buat masa ini. Sila cuba lagi.";
+				}
+			} finally {
+				/*
                 |--------------------------------------------------------------------------
                 | Restore submit button
                 |--------------------------------------------------------------------------
                 */
 
-                if (
-                    submitButton &&
-                    document.body.contains(
-                        submitButton
-                    )
-                ) {
+				if (submitButton && document.body.contains(submitButton)) {
+					submitButton.disabled = false;
 
-                    submitButton.disabled =
-                        false;
+					submitButton.classList.remove("loading");
 
-                    submitButton.classList.remove(
-                        'loading'
-                    );
-
-                    submitButton.innerHTML = `
+					submitButton.innerHTML = `
 
                         <i data-lucide="send"></i>
 
@@ -1795,38 +1498,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     `;
 
+					if (typeof lucide !== "undefined") {
+						lucide.createIcons();
+					}
+				}
+			}
+		});
+	}
 
-                    if (
-                        typeof lucide !==
-                        'undefined'
-                    ) {
+	function showRSVPSuccess(message) {
+		const modalContent = document.getElementById("modal-content");
 
-                        lucide.createIcons();
+		if (!modalContent) {
+			return;
+		}
 
-                    }
-
-                }
-
-            }
-
-        }
-    );
-
-}
-
-function showRSVPSuccess(message) {
-
-    const modalContent =
-        document.getElementById(
-            'modal-content'
-        );
-
-    if (!modalContent) {
-        return;
-    }
-
-
-    modalContent.innerHTML = `
+		modalContent.innerHTML = `
 
         <div class="modal-header">
 
@@ -1890,380 +1577,229 @@ function showRSVPSuccess(message) {
 
     `;
 
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Re-render Lucide
     |--------------------------------------------------------------------------
     */
 
-    if (
-        typeof lucide !==
-        'undefined'
-    ) {
+		if (typeof lucide !== "undefined") {
+			lucide.createIcons();
+		}
 
-        lucide.createIcons();
-
-    }
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Close button
     |--------------------------------------------------------------------------
     */
 
-    const closeButton =
-        document.getElementById(
-            'rsvp-success-close'
-        );
+		const closeButton = document.getElementById("rsvp-success-close");
 
+		if (closeButton) {
+			closeButton.addEventListener("click", closeModal);
+		}
+	}
 
-    if (closeButton) {
-
-        closeButton.addEventListener(
-            'click',
-            closeModal
-        );
-
-    }
-
-}
-
-/* =========================================================
+	/* =========================================================
   GUESTBOOK
   ========================================================= */
 
-  function initialiseGuestbook() {
-
-    /*
+	function initialiseGuestbook() {
+		/*
     |--------------------------------------------------------------------------
     | Elements
     |--------------------------------------------------------------------------
     */
 
-    const form =
-        document.getElementById(
-            'guestbook-form'
-        );
+		const form = document.getElementById("guestbook-form");
 
-    const name =
-        document.getElementById(
-            'guestbook-name'
-        );
+		const name = document.getElementById("guestbook-name");
 
-    const message =
-        document.getElementById(
-            'guestbook-message'
-        );
+		const message = document.getElementById("guestbook-message");
 
-    const nameError =
-        document.getElementById(
-            'guestbook-name-error'
-        );
+		const nameError = document.getElementById("guestbook-name-error");
 
-    const messageError =
-        document.getElementById(
-            'guestbook-message-error'
-        );
+		const messageError = document.getElementById("guestbook-message-error");
 
-    const formError =
-        document.getElementById(
-            'guestbook-form-error'
-        );
+		const formError = document.getElementById("guestbook-form-error");
 
-    const submitButton =
-        document.getElementById(
-            'guestbook-submit'
-        );
+		const submitButton = document.getElementById("guestbook-submit");
 
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Guestbook URL
     |--------------------------------------------------------------------------
     */
 
-    const guestbookUrl =
-        document
-            .querySelector(
-                'meta[name="url-guestbook"]'
-            )
-            ?.getAttribute(
-                'content'
-            );
+		const guestbookUrl = document
+			.querySelector('meta[name="url-guestbook"]')
+			?.getAttribute("content");
 
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | CSRF Token
     |--------------------------------------------------------------------------
     */
 
-    const csrfToken =
-        document
-            .querySelector(
-                'meta[name="csrf-token"]'
-            )
-            ?.getAttribute(
-                'content'
-            );
+		const csrfToken = document
+			.querySelector('meta[name="csrf-token"]')
+			?.getAttribute("content");
 
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Safety Check
     |--------------------------------------------------------------------------
     */
 
-    if (
-        !form ||
-        !name ||
-        !message ||
-        !guestbookUrl ||
-        !csrfToken
-    ) {
+		if (!form || !name || !message || !guestbookUrl || !csrfToken) {
+			console.error("Guestbook form could not be initialised.");
 
-        console.error(
-            'Guestbook form could not be initialised.'
-        );
+			return;
+		}
 
-        return;
-
-    }
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Clear Errors
     |--------------------------------------------------------------------------
     */
 
-    function clearErrors() {
-
-        /*
+		function clearErrors() {
+			/*
         | Name
         */
 
-        name.classList.remove(
-            'error'
-        );
+			name.classList.remove("error");
 
-        if (nameError) {
+			if (nameError) {
+				nameError.textContent = "";
+			}
 
-            nameError.textContent =
-                '';
-
-        }
-
-
-        /*
+			/*
         | Message
         */
 
-        message.classList.remove(
-            'error'
-        );
+			message.classList.remove("error");
 
-        if (messageError) {
+			if (messageError) {
+				messageError.textContent = "";
+			}
 
-            messageError.textContent =
-                '';
-
-        }
-
-
-        /*
+			/*
         | General Error
         */
 
-        if (formError) {
+			if (formError) {
+				formError.textContent = "";
+			}
+		}
 
-            formError.textContent =
-                '';
-
-        }
-
-    }
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Display Validation Errors
     |--------------------------------------------------------------------------
     */
 
-    function displayErrors(errors) {
-
-        /*
+		function displayErrors(errors) {
+			/*
         |----------------------------------------------------------------------
         | Name
         |----------------------------------------------------------------------
         */
 
-        if (
-            errors.name
-        ) {
+			if (errors.name) {
+				name.classList.add("error");
 
-            name.classList.add(
-                'error'
-            );
+				if (nameError) {
+					nameError.textContent = errors.name[0];
+				}
+			}
 
-            if (nameError) {
-
-                nameError.textContent =
-                    errors.name[0];
-
-            }
-
-        }
-
-
-        /*
+			/*
         |----------------------------------------------------------------------
         | Message
         |----------------------------------------------------------------------
         */
 
-        if (
-            errors.message
-        ) {
+			if (errors.message) {
+				message.classList.add("error");
 
-            message.classList.add(
-                'error'
-            );
+				if (messageError) {
+					messageError.textContent = errors.message[0];
+				}
+			}
 
-            if (messageError) {
-
-                messageError.textContent =
-                    errors.message[0];
-
-            }
-
-        }
-
-
-        /*
+			/*
         |----------------------------------------------------------------------
         | Focus first invalid field
         |----------------------------------------------------------------------
         */
 
-        if (
-            errors.name
-        ) {
+			if (errors.name) {
+				name.focus();
+			} else if (errors.message) {
+				message.focus();
+			}
+		}
 
-            name.focus();
-
-        }
-
-        else if (
-            errors.message
-        ) {
-
-            message.focus();
-
-        }
-
-    }
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Clear Individual Error While Typing
     |--------------------------------------------------------------------------
     */
 
-    name.addEventListener(
-        'input',
-        () => {
+		name.addEventListener("input", () => {
+			name.classList.remove("error");
 
-            name.classList.remove(
-                'error'
-            );
+			if (nameError) {
+				nameError.textContent = "";
+			}
 
-            if (nameError) {
+			if (formError) {
+				formError.textContent = "";
+			}
+		});
 
-                nameError.textContent =
-                    '';
+		message.addEventListener("input", () => {
+			message.classList.remove("error");
 
-            }
+			if (messageError) {
+				messageError.textContent = "";
+			}
 
-            if (formError) {
+			if (formError) {
+				formError.textContent = "";
+			}
+		});
 
-                formError.textContent =
-                    '';
-
-            }
-
-        }
-    );
-
-
-    message.addEventListener(
-        'input',
-        () => {
-
-            message.classList.remove(
-                'error'
-            );
-
-            if (messageError) {
-
-                messageError.textContent =
-                    '';
-
-            }
-
-            if (formError) {
-
-                formError.textContent =
-                    '';
-
-            }
-
-        }
-    );
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Guestbook Submit
     |--------------------------------------------------------------------------
     */
 
-    form.addEventListener(
-        'submit',
-        async event => {
+		form.addEventListener("submit", async (event) => {
+			event.preventDefault();
 
-            event.preventDefault();
-
-
-            /*
+			/*
             |------------------------------------------------------------------
             | Clear previous errors
             |------------------------------------------------------------------
             */
 
-            clearErrors();
+			clearErrors();
 
-
-            /*
+			/*
             |------------------------------------------------------------------
             | Disable submit button
             |------------------------------------------------------------------
             */
 
-            if (submitButton) {
+			if (submitButton) {
+				submitButton.disabled = true;
 
-                submitButton.disabled =
-                    true;
+				submitButton.classList.add("loading");
 
-                submitButton.classList.add(
-                    'loading'
-                );
-
-                submitButton.innerHTML = `
+				submitButton.innerHTML = `
 
                     <span class="d-loading d-loading-spinner"></span>
 
@@ -2272,172 +1808,96 @@ function showRSVPSuccess(message) {
                     </span>
 
                 `;
+			}
 
-            }
-
-
-            /*
+			/*
             |------------------------------------------------------------------
             | Form Data
             |------------------------------------------------------------------
             */
 
-            const formData =
-                new FormData(
-                    form
-                );
+			const formData = new FormData(form);
 
-
-            /*
+			/*
             |------------------------------------------------------------------
             | AJAX Request
             |------------------------------------------------------------------
             */
 
-            try {
+			try {
+				const response = await fetch(guestbookUrl, {
+					method: "POST",
 
-                const response =
-                    await fetch(
-                        guestbookUrl,
-                        {
+					headers: {
+						"X-CSRF-TOKEN": csrfToken,
 
-                            method:
-                                'POST',
+						Accept: "application/json",
 
-                            headers: {
+						"X-Requested-With": "XMLHttpRequest",
+					},
 
-                                'X-CSRF-TOKEN':
-                                    csrfToken,
+					body: formData,
+				});
 
-                                'Accept':
-                                    'application/json',
-
-                                'X-Requested-With':
-                                    'XMLHttpRequest'
-
-                            },
-
-                            body:
-                                formData
-
-                        }
-                    );
-
-
-                /*
+				/*
                 |------------------------------------------------------------------
                 | Validation Error
                 |------------------------------------------------------------------
                 */
 
-                if (
-                    response.status ===
-                    422
-                ) {
+				if (response.status === 422) {
+					const data = await response.json();
 
-                    const data =
-                        await response.json();
+					displayErrors(data.errors || {});
 
+					return;
+				}
 
-                    displayErrors(
-                        data.errors ||
-                        {}
-                    );
-
-
-                    return;
-
-                }
-
-
-                /*
+				/*
                 |------------------------------------------------------------------
                 | Other HTTP Errors
                 |------------------------------------------------------------------
                 */
 
-                if (
-                    !response.ok
-                ) {
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`);
+				}
 
-                    throw new Error(
-                        `HTTP ${response.status}`
-                    );
-
-                }
-
-
-                /*
+				/*
                 |------------------------------------------------------------------
                 | Success
                 |------------------------------------------------------------------
                 */
 
-                const data =
-                    await response.json();
+				const data = await response.json();
 
+				if (data.success) {
+					if (data.data) {
+						addWishToCard(data.data);
+					}
 
-                if (
-                    data.success
-                ) {
-                    if (
-                        data.data
-                    ) {
-                
-                        addWishToCard(
-                            data.data
-                        );
-                
-                    }
+					showGuestbookSuccess(data.message);
+				}
+			} catch (error) {
+				console.error("Guestbook submission failed:", error);
 
-                    showGuestbookSuccess(
-                        data.message
-                    );
-
-                }
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    'Guestbook submission failed:',
-                    error
-                );
-
-
-                if (formError) {
-
-                    formError.textContent =
-                        'Maaf, ucapan tidak dapat dihantar buat masa ini. Sila cuba lagi.';
-
-                }
-
-            }
-
-            finally {
-
-                /*
+				if (formError) {
+					formError.textContent =
+						"Maaf, ucapan tidak dapat dihantar buat masa ini. Sila cuba lagi.";
+				}
+			} finally {
+				/*
                 |------------------------------------------------------------------
                 | Restore submit button
                 |------------------------------------------------------------------
                 */
 
-                if (
-                    submitButton &&
-                    document.body.contains(
-                        submitButton
-                    )
-                ) {
+				if (submitButton && document.body.contains(submitButton)) {
+					submitButton.disabled = false;
 
-                    submitButton.disabled =
-                        false;
+					submitButton.classList.remove("loading");
 
-                    submitButton.classList.remove(
-                        'loading'
-                    );
-
-                    submitButton.innerHTML = `
+					submitButton.innerHTML = `
 
                         <i data-lucide="send"></i>
 
@@ -2447,44 +1907,28 @@ function showRSVPSuccess(message) {
 
                     `;
 
-
-                    /*
+					/*
                     |----------------------------------------------------------------
                     | Re-render Lucide
                     |----------------------------------------------------------------
                     */
 
-                    if (
-                        typeof lucide !==
-                        'undefined'
-                    ) {
+					if (typeof lucide !== "undefined") {
+						lucide.createIcons();
+					}
+				}
+			}
+		});
+	}
 
-                        lucide.createIcons();
+	function showGuestbookSuccess(message) {
+		const modalContent = document.getElementById("modal-content");
 
-                    }
+		if (!modalContent) {
+			return;
+		}
 
-                }
-
-            }
-
-        }
-    );
-
-}
-
-function showGuestbookSuccess(message) {
-
-    const modalContent =
-        document.getElementById(
-            'modal-content'
-        );
-
-    if (!modalContent) {
-        return;
-    }
-
-
-    modalContent.innerHTML = `
+		modalContent.innerHTML = `
 
         <div class="modal-header">
 
@@ -2548,77 +1992,47 @@ function showGuestbookSuccess(message) {
 
     `;
 
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Re-render Lucide
     |--------------------------------------------------------------------------
     */
 
-    if (
-        typeof lucide !==
-        'undefined'
-    ) {
+		if (typeof lucide !== "undefined") {
+			lucide.createIcons();
+		}
 
-        lucide.createIcons();
-
-    }
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Close Button
     |--------------------------------------------------------------------------
     */
 
-    const closeButton =
-        document.getElementById(
-            'guestbook-success-close'
-        );
+		const closeButton = document.getElementById("guestbook-success-close");
 
+		if (closeButton) {
+			closeButton.addEventListener("click", closeModal);
+		}
+	}
 
-    if (closeButton) {
+	function addWishToCard(wish) {
+		const wishesList = document.getElementById("guestbook-list");
 
-        closeButton.addEventListener(
-            'click',
-            closeModal
-        );
+		if (!wishesList || !wish) {
+			return;
+		}
 
-    }
-
-}
-
-function addWishToCard(wish) {
-
-    const wishesList =
-        document.getElementById(
-            'guestbook-list'
-        );
-
-    if (
-        !wishesList ||
-        !wish
-    ) {
-        return;
-    }
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Create wish element
     |--------------------------------------------------------------------------
     */
 
-    const wishElement =
-        document.createElement(
-            'div'
-        );
+		const wishElement = document.createElement("div");
 
-    wishElement.className =
-        'guestbook-entry';
+		wishElement.className = "guestbook-entry";
 
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Escape HTML
     |--------------------------------------------------------------------------
@@ -2629,270 +2043,258 @@ function addWishToCard(wish) {
     |
     */
 
-    const name =
-        document.createElement(
-            'div'
-        );
+		const name = document.createElement("div");
 
-    name.className =
-        'guestbook-entry-name';
+		name.className = "guestbook-entry-name";
 
-    name.textContent =
-        wish.name;
+		name.textContent = wish.name;
 
+		const message = document.createElement("div");
 
-    const message =
-        document.createElement(
-            'div'
-        );
+		message.className = "guestbook-entry-message";
 
-    message.className =
-        'guestbook-entry-message';
+		message.textContent = wish.message;
 
-    message.textContent =
-        wish.message;
-
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Build wish
     |--------------------------------------------------------------------------
     */
 
-    wishElement.appendChild(
-        name
-    );
+		wishElement.appendChild(name);
 
-    wishElement.appendChild(
-        message
-    );
+		wishElement.appendChild(message);
 
-
-    /*
+		/*
     |--------------------------------------------------------------------------
     | Add to top of list
     |--------------------------------------------------------------------------
     */
 
-    wishesList.prepend(
-        wishElement
-    );
+		wishesList.prepend(wishElement);
+	}
 
-}
+	function initialiseModalActions() {
+		const actions = modal_content.querySelectorAll("[data-action]");
 
-    function initialiseModalActions() {
-        const actions = modal_content.querySelectorAll('[data-action]');
+		actions.forEach((action) => {
+			action.addEventListener("click", () => {
+				const actionType = action.dataset.action;
 
-        actions.forEach(action => {
-            action.addEventListener('click', () => {
-                const actionType = action.dataset.action;
+				switch (actionType) {
+					case "google-calendar":
+						addToGoogleCalendar();
+						break;
 
-                switch (actionType) {
-                    case 'google-calendar':
-                        addToGoogleCalendar();
-                    break;
+					case "apple-calendar":
+						addToAppleCalendar();
+						break;
 
-                    case 'apple-calendar':
-                        addToAppleCalendar();
-                    break;
+					case "call":
+						callContact(action);
+						break;
 
-                    case 'call':
-                        callContact(action);
-                    break;
+					case "whatsapp":
+						whatsappContact(action);
+						break;
 
-                    case 'whatsapp':
-                        whatsappContact(action);
-                    break;
+					case "google-maps":
+						openGoogleMaps();
+						break;
 
-                    case 'google-maps':
-                        openGoogleMaps();
-                    break;
+					case "waze":
+						openWaze();
+						break;
 
-                    case 'waze':
-                        openWaze();
-                    break;
+					case "copy-account":
+						copyBankAccount(action);
+						break;
 
-                    case 'copy-account':
-                        copyBankAccount(action);
-                    break;
+					case "social-media":
+						openSocialMedia();
+						break;
+				}
+			});
+		});
+	}
 
-                    case 'social-media':
-                        openSocialMedia();
-                    break;
-                }
+	function addToGoogleCalendar() {
+		const title = encodeURIComponent("Majlis Perkahwinan Putra & Laila");
+		const details = encodeURIComponent("Majlis Perkahwinan Putra & Laila");
+		const location = encodeURIComponent(
+			"Asiana Grand Hall PJ, Petaling Jaya, Selangor"
+		);
+		const start = "20261031T030000Z";
+		const end = "20261031T080000Z";
+		const url =
+			`https://calendar.google.com/calendar/render?action=TEMPLATE` +
+			`&text=${title}` +
+			`&dates=${start}/${end}` +
+			`&details=${details}` +
+			`&location=${location}`;
 
-            });
-        });
-    }
+		window.open(url, "_blank");
+	}
 
-    function addToGoogleCalendar() {
-        const title = encodeURIComponent('Majlis Perkahwinan Laila & Putra');
-        const details = encodeURIComponent('Majlis Perkahwinan Laila & Putra');
-        const location = encodeURIComponent('Teratak Umi, Kemasik, Terengganu');
-        const start = '20261010T030000Z';
-        const end = '20261010T080000Z';
-        const url =
-            `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-            `&text=${title}` +
-            `&dates=${start}/${end}` +
-            `&details=${details}` +
-            `&location=${location}`;
-    
-        window.open(url, '_blank');
-    }
-
-    function addToAppleCalendar() {
-        const ics =
-            `BEGIN:VCALENDAR
+	function addToAppleCalendar() {
+		const ics = `BEGIN:VCALENDAR
             VERSION:2.0
-            PRODID:-//Laila & Putra//Wedding Invitation//EN
+            PRODID:-//Putra & Laila//Wedding Invitation//EN
             BEGIN:VEVENT
-            UID:laila-putra-wedding-20261010@eweddingcard.com
+            UID:putra-laila-wedding-20261031@eweddingcard.com
             DTSTAMP:20260827T000000Z
-            DTSTART:20261010T030000Z
-            DTEND:20261010T080000Z
-            SUMMARY:Majlis Perkahwinan Laila & Putra
-            LOCATION:Teratak Umi\\, Kemasik\\, Terengganu
-            DESCRIPTION:Majlis Perkahwinan Laila & Putra
+            DTSTART:20261031T030000Z
+            DTEND:20261031T080000Z
+            SUMMARY:Majlis Perkahwinan Putra & Laila
+            LOCATION:Asiana Grand Hall PJ\\, Petaling Jaya\\, Selangor
+            DESCRIPTION:Majlis Perkahwinan Putra & Laila
             END:VEVENT
             END:VCALENDAR`;
-    
-        const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-    
-        link.href = url;
-        link.download ='Laila-Putra-Wedding.ics';
-    
-        document.body.appendChild(link);
-    
-        link.click();
-    
-        document.body.removeChild(link);
-    
-        URL.revokeObjectURL(url);
-    }
 
-    function callContact(button) {
-        const contact = button.closest('.modal-info');
-    
-        if (!contact) {
-            return;
-        }
-    
-        const phone = contact.dataset.phone;
-    
-        if (!phone) {
-            return;
-        }
-    
-        window.location.href = `tel:+${phone}`;
-    }
+		const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement("a");
 
-    function whatsappContact(button) {
-        const contact = button.closest('.modal-info');
-    
-        if (!contact) {
-            return;
-        }
-    
-        const phone = contact.dataset.phone;
-    
-        if (!phone) {
-            return;
-        }
-    
-        const message = encodeURIComponent('Assalamualaikum, saya ingin bertanya mengenai majlis perkahwinan Laila & Putra.');
-    
-        window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
-    }
+		link.href = url;
+		link.download = "Putra-Laila-Wedding.ics";
 
-    function openGoogleMaps() {
-        const destination = encodeURIComponent('Teratak Umi, Kemasik, Terengganu');
-    
-        window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}`, '_blank');
-    }
+		document.body.appendChild(link);
 
-    function openWaze() {
-        const latitude = '5.123456';
-        const longitude = '102.123456';
-    
-        window.open(`https://www.waze.com/ul?ll=${latitude}%2C${longitude}&navigate=yes`, '_blank');
-    }
+		link.click();
 
-    function openSocialMedia() {
-        window.open('https://www.instagram.com/YOUR_ACCOUNT', '_blank');
-    }
+		document.body.removeChild(link);
 
-    function copyBankAccount(button) {
-        const account = button.dataset.account;
+		URL.revokeObjectURL(url);
+	}
 
-        if (!account) {
-            return;
-        }
+	function callContact(button) {
+		const contact = button.closest(".modal-info");
 
-        const accountNumber = account.trim();
+		if (!contact) {
+			return;
+		}
 
-        if (!accountNumber) {
-            return;
-        }
+		const phone = contact.dataset.phone;
 
-        navigator.clipboard
-            .writeText(accountNumber)
-            .then(() => {
-                const originalHTML = button.innerHTML;
+		if (!phone) {
+			return;
+		}
 
-                button.innerHTML = `
+		window.location.href = `tel:+${phone}`;
+	}
+
+	function whatsappContact(button) {
+		const contact = button.closest(".modal-info");
+
+		if (!contact) {
+			return;
+		}
+
+		const phone = contact.dataset.phone;
+
+		if (!phone) {
+			return;
+		}
+
+		const message = encodeURIComponent(
+			"Assalamualaikum, saya ingin bertanya mengenai majlis perkahwinan Putra & Laila."
+		);
+
+		window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+	}
+
+	function openGoogleMaps() {
+		const destination = encodeURIComponent(
+			"Asiana Grand Hall PJ, Petaling Jaya, Selangor"
+		);
+
+		window.open(
+			`https://www.google.com/maps/dir/?api=1&destination=${destination}`,
+			"_blank"
+		);
+	}
+
+	function openWaze() {
+		const latitude = "3.100196885850618";
+		const longitude = "101.64292872148212";
+
+		const destination = encodeURIComponent(
+			"Asiana Grand Hall PJ, Petaling Jaya, Selangor"
+		);
+
+		window.open(
+			`https://www.waze.com/ul?ll=${latitude}%2C${longitude}&navigate=yes`,
+			"_blank"
+		);
+	}
+
+	function openSocialMedia() {
+		window.open("https://www.instagram.com/YOUR_ACCOUNT", "_blank");
+	}
+
+	function copyBankAccount(button) {
+		const account = button.dataset.account;
+
+		if (!account) {
+			return;
+		}
+
+		const accountNumber = account.trim();
+
+		if (!accountNumber) {
+			return;
+		}
+
+		navigator.clipboard
+			.writeText(accountNumber)
+			.then(() => {
+				const originalHTML = button.innerHTML;
+
+				button.innerHTML = `
                     <i data-lucide="check"></i>
                     <span>
                         Berjaya Disalin
                     </span>
                 `;
 
-                createIcons({icons});
+				createIcons({ icons });
 
-                setTimeout(() => {
-                    button.innerHTML = originalHTML;
+				setTimeout(() => {
+					button.innerHTML = originalHTML;
 
-                    createIcons({icons});
-                }, 2000);
-            })
-            .catch(() => {
-                alert('Tidak dapat menyalin nombor akaun.');
-            });
-    }
+					createIcons({ icons });
+				}, 2000);
+			})
+			.catch(() => {
+				alert("Tidak dapat menyalin nombor akaun.");
+			});
+	}
 
-    document
-        .querySelectorAll('[data-modal]')
-        .forEach(button => {
-            button.addEventListener('click', () => {
-                    openModal(button.dataset.modal);
-                }
-            );
-        });
+	document.querySelectorAll("[data-modal]").forEach((button) => {
+		button.addEventListener("click", () => {
+			openModal(button.dataset.modal);
+		});
+	});
 
-    if (modal_close) {
-        modal_close.addEventListener('click', closeModal);
-    }
+	if (modal_close) {
+		modal_close.addEventListener("click", closeModal);
+	}
 
-    if (modal_overlay) {
-        modal_overlay.addEventListener('click', event => {
-                if (event.target === modal_overlay) {
-                    closeModal();
-                }
-            }
-        );
-    }
+	if (modal_overlay) {
+		modal_overlay.addEventListener("click", (event) => {
+			if (event.target === modal_overlay) {
+				closeModal();
+			}
+		});
+	}
 
-    document
-        .addEventListener('keydown', event => {
-                if (event.key === 'Escape' && modal_overlay.classList.contains('active')) {
-                    closeModal();
-                }
-            }
-        );
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape" && modal_overlay.classList.contains("active")) {
+			closeModal();
+		}
+	});
 
-    /*-- Card | Icons --*/
+	/*-- Card | Icons --*/
 
-    createIcons({icons, VolumeX, Volume2});
+	createIcons({ icons, VolumeX, Volume2 });
 });

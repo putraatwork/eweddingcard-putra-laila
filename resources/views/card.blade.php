@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Digital Invitation | Laila & Putra</title>
+    <title>Digital Invitation | Putra & Laila</title>
 
     <meta name="url-rsvp" content="{{ route('card.rsvp.store') }}">
     <meta name="url-guestbook" content="{{ route('card.guestbook.store') }}">
@@ -16,9 +16,9 @@
 <body>
     <section class="cover">
         <div class="cover-sleeves">
-            <img class="sleeve sleeve-left" src="{{ asset('assets/cards/laila-putra/image/cover/cover-left.png') }}">
+            <img class="sleeve sleeve-left" src="{{ asset('assets/cards/putra-laila/image/cover/cover-left.png') }}">
 
-            <img class="sleeve sleeve-right" src="{{ asset('assets/cards/laila-putra/image/cover/cover-right.png') }}">
+            <img class="sleeve sleeve-right" src="{{ asset('assets/cards/putra-laila/image/cover/cover-right.png') }}">
         </div>
 
         <div class="cover-content">
@@ -34,14 +34,14 @@
 
     <div class="wedding-card">
         <main class="card-content">
-            <div class="card-background" id="card-background" data-src="{{ asset('assets/cards/laila-putra/video/background.mp4') }}"></div>
+            <div class="card-background" id="card-background" data-src="{{ asset('assets/cards/putra-laila/video/background.mp4') }}"></div>
             
             <div class="card-sections">
                 {{-- Main --}}
 
                 <section class="wedding-card-section section-main">
                     <video class="section-main-card" autoplay loop muted playsinline preload="auto">
-                        <source src="{{ asset('assets/cards/laila-putra/video/main-invitation.mp4') }}" type="video/mp4">
+                        <source src="{{ asset('assets/cards/putra-laila/video/main-invitation.mp4') }}" type="video/mp4">
                     </video>
                 </section>
 
@@ -49,7 +49,7 @@
 
                 <section class="wedding-card-section section-invitation">
                     <div class="section-content">
-                        <img class="invitation-bismillah" src="{{ asset('assets/cards/laila-putra/image/other/bismillah.png') }}">
+                        <img class="invitation-bismillah" src="{{ asset('assets/cards/putra-laila/image/other/bismillah.png') }}">
                         
                         <p>
                             Dengan penuh kesyukuran dan rendah diri, kami
@@ -58,11 +58,11 @@
                         <div class="invitation-names">
                             <div class="invitation-name">
                                 <p class="name">
-                                    Mohd Zaki Bin Harun
+                                    Jajiman Bin Mohd Daldiri
                                 </p>
 
                                 <p class="relation">
-                                    Bapa Pengantin Perempuan
+                                    Bapa Pengantin Lelaki
                                 </p>
                             </div>
                             
@@ -74,11 +74,11 @@
 
                             <div class="invitation-name">
                                 <p class="name">
-                                    Zainab Binti Mat Ghani
+                                    Sharimah Binti Shamsuddin
                                 </p>
 
                                 <p class="relation">
-                                    Ibu Pengantin Perempuan
+                                    Ibu Pengantin Lelaki
                                 </p>
                             </div>
                         </div>
@@ -90,7 +90,7 @@
                         <div class="invitation-names">
                             <div class="invitation-name">
                                 <p class="name">
-                                    Lailatul Mashitah Binti Mohd Zaki
+                                    Putra Nor Hakimi Bin Jajiman
                                 </p>
 
                                 <p class="name">
@@ -98,7 +98,7 @@
                                 </p>
 
                                 <p class="name">
-                                    Putra Nor Hakimi Bin Jajiman
+                                    Lailatul Mashitah Binti Mohd Zaki
                                 </p>
                             </div>
                         </div>
@@ -118,11 +118,11 @@
 
                             <div class="detail-text">
                                 <p class="detail-main">
-                                    Sabtu, 10 Oktober 2026
+                                    Sabtu, 31 Oktober 2026
                                 </p>
 
                                 <p class="detail-sub">
-                                    28 Rabiul Akhir 1448H
+                                    28 Jamadil Awal 1448H
                                 </p>
                             </div>
                         </div>
@@ -132,7 +132,7 @@
 
                             <div class="detail-text">
                                 <p class="detail-main">
-                                    11:00 Pagi – 4:00 Petang
+                                    11:00 Pagi – 3:30 Petang
                                 </p>
                             </div>
                         </div>
@@ -142,7 +142,7 @@
 
                             <div class="detail-text">
                                 <p class="detail-main">
-                                    Kemasik, Terengganu
+                                    Asiana Grand Hall, Petaling Jaya
                                 </p>
                             </div>
                         </div>
@@ -209,7 +209,7 @@
 
                 <section class="wedding-card-section section-doa">
                     <div class="section-content">
-                        <img class="doa-bismillah" src="{{ asset('assets/cards/laila-putra/image/other/bismillah.png') }}">
+                        <img class="doa-bismillah" src="{{ asset('assets/cards/putra-laila/image/other/bismillah.png') }}">
                         
                         <p class="font-semibold">
                             Ya Allah Ya Rahim
@@ -265,7 +265,7 @@
 
                                 <div class="timeline-content">
                                     <div class="timeline-time">
-                                        2:00 Petang
+                                        12:30 Tengah Hari
                                     </div>
 
                                     <div class="timeline-event">
@@ -279,7 +279,7 @@
 
                                 <div class="timeline-content">
                                     <div class="timeline-time">
-                                        4:00 Petang
+                                        3:30 Petang
                                     </div>
 
                                     <div class="timeline-event">
@@ -317,9 +317,9 @@
 
                 @php
                     $galleryImages = [
-                        asset('assets/cards/laila-putra/image/gallery/image_1.jpeg'),
-                        asset('assets/cards/laila-putra/image/gallery/image_2.jpeg'),
-                        asset('assets/cards/laila-putra/image/gallery/image_3.jpeg'),
+                        asset('assets/cards/putra-laila/image/gallery/image_1.jpeg'),
+                        asset('assets/cards/putra-laila/image/gallery/image_2.jpeg'),
+                        asset('assets/cards/putra-laila/image/gallery/image_3.jpeg'),
                     ];
                 @endphp
 
@@ -437,7 +437,7 @@
         <i data-lucide="volume-off"></i>
     </button>
 
-    <audio id="background-music" src="{{ asset('assets/cards/laila-putra/audio/background.mp3') }}" loop preload="auto"></audio>
+    <audio id="background-music" src="{{ asset('assets/cards/putra-laila/audio/background.mp3') }}" loop preload="auto"></audio>
 
     {{-- Modal --}}
 

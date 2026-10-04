@@ -512,7 +512,7 @@ body.invitation-opened .wedding-card {
 
 @media (max-width: 768px) {
     .invitation-bismillah {
-        @apply w-3/4;
+        @apply w-1/2;
     }
 }
 
@@ -577,8 +577,8 @@ body.invitation-opened .wedding-card {
 }
 
 @media (max-width: 768px) {
-    .dua-bismillah {
-        @apply w-3/4;
+    .doa-bismillah {
+        @apply w-1/2;
     }
 }
 

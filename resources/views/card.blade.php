@@ -143,7 +143,7 @@
                             <div class="detail-text">
                                 <p class="detail-main">
                                     Asiana Grand Hall PJ
-                                    <br>Petaling Jaya, Terengganu
+                                    <br>Petaling Jaya, Selangor
                                 </p>
                             </div>
                         </div>

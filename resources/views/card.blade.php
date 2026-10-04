@@ -431,9 +431,9 @@
             <small>RSVP</small>
         </button>
     
-        <button type="button" data-modal="guestbook">
-            <i data-lucide="message-square-heart"></i>
-            <small>Ucapan</small>
+        <button type="button" data-modal="salam-kaut">
+            <i data-lucide="heart-handshake"></i>
+            <small>Salam Kaut</small>
         </button>
     </nav>
 

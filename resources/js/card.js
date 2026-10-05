@@ -2463,10 +2463,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const latitude = "5.123456";
 		const longitude = "102.123456";
 
-		window.open(
-			`https://www.waze.com/ul?ll=${latitude}%2C${longitude}&navigate=yes`,
-			"_blank"
-		);
+		window.open(`https://waze.com/ul/hw2838uq24`, "_blank");
 	}
 
 	function openSocialMedia() {

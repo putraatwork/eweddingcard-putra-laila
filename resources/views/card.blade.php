@@ -7,6 +7,8 @@
 
     <title>Digital Invitation | Putra & Laila</title>
 
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/favicon.png') }}">
+
     <meta name="url-rsvp" content="{{ route('card.rsvp.store') }}">
     <meta name="url-guestbook" content="{{ route('card.guestbook.store') }}">
 
